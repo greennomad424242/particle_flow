@@ -10,6 +10,11 @@
 				height: 300px;
 			}
 		</style>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.js"></script>
+
+
+		<script src="BufferGeometryUtils.js"></script>
+
 	</head>
 	<body>
 
@@ -21,7 +26,7 @@
 	</body>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-	<script src="js/Three.js"></script>
+
 
 	<script type="text/javascript">
 
@@ -41,6 +46,7 @@
 	    HEIGHT = 300;
 			var particleCount = 18;
 
+var pickingData=[];
 	// set some camera attributes
 	var VIEW_ANGLE = 45,
 	    ASPECT = WIDTH / HEIGHT,
@@ -84,14 +90,101 @@
 			transparent: true
 		});
 
+    // TO DO : create webpages
+
+		function applyVertexColors( geometry, color ) {
+			 var position = geometry.attributes.position;
+			 var colors = [];
+			 for ( var i = 0; i < position.count; i ++ ) {
+				 colors.push( color.r, color.g, color.b );
+			 }
+			 geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+		 }
+
+		var pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+		var defaultMaterial = new THREE.MeshLambertMaterial(
+				{ color:  0xfffddd,
+				 emissive: 0xe6e600,
+				 emissiveIntensity:1,
+				 opacity: 0.5,
+				 transparent: false,
+				 vertexColors: 0xdddddd	} );
+var actual_array =[];
+
+
+side_length=5;
+axis_length=100;
+var min_x=0,min_y=0,min_z=0;
+var max_x=100, max_y=100, max_z=100;
+
+actual_array.push([10,10,10]);
+actual_array.push([20,20,20]);
+		 var geometriesDrawn = [];
+		 var linesDrawn = [];
+		 var geometriesPicking = [];
+		 var matrix = new THREE.Matrix4();
+		 quaternion = new THREE.Quaternion();
+		 var color = new THREE.Color();
+		 var num_rows = actual_array.length;
+		 for ( var i = 0; i < num_rows ; i ++ ) {
+			 var geometry = new THREE.BoxBufferGeometry();
+			 var position = new THREE.Vector3();
+			 sample_x = actual_array[i][0];
+			 sample_y = actual_array[i][1];
+			 sample_z = actual_array[i][2];
+			 target_x = Math.round((sample_x - min_x)/(max_x - min_x) * axis_length);
+			 target_y = Math.round((sample_y - min_y)/(max_y - min_y) * axis_length);
+			 target_z = Math.round((sample_z - min_z)/(max_z - min_z) * axis_length);
+			 position.x = target_x ;  //Math.random() * 10000 - 5000;
+			 position.y = target_y;//Math.random() * 6000 - 3000;
+			 position.z = 	target_z;//Math.random() * 8000 - 4000;
+			 var rotation = new THREE.Euler();
+			 rotation.x = 0;
+			 rotation.y = 0;
+			 rotation.z = 0;
+			 var scale = new THREE.Vector3();
+			 scale.x = side_length ;
+			 scale.y = side_length ;
+			 scale.z = side_length ;
+			 quaternion.setFromEuler( rotation, false );
+			 matrix.compose( position, quaternion, scale );
+			 geometry.applyMatrix( matrix );
+						 // give the geometry's vertices a random color, to be displayed
+			 var edges = new THREE.EdgesGeometry( geometry );
+			 var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
+			 scene.add( line);
+			 applyVertexColors( geometry, color.setHex(  0x009900 ) );
+			 linesDrawn.push( line );
+			 geometriesDrawn.push( geometry );
+			 geometry = geometry.clone();
+						 // give the geometry's vertices a color corresponding to the "id"
+			 applyVertexColors( geometry, color.setHex( i ) );
+			 geometriesPicking.push( geometry );
+			 pickingData[ i ] = {
+				 position: position,
+				 rotation: rotation,
+				 scale: scale
+			 };
+		 }
+
+		 var objects = new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesDrawn ), defaultMaterial );
+
+					 //objects.add( edges );
+		 scene.add( objects );
+
+
+
+
+
 	// now create the individual particles
-	for(var p = 0; p < particleCount; p++) {
+	for(var p = 0; p < 0; p++) {
 
 		// create a particle with random
 		// position values, -250 -> 250
-		var pX = Math.random() * 500 - 250,
-			pY = Math.random() * 500 - 250,
-			pZ = Math.random() * 500 - 250,
+		var pX = 0 + p*2,
+			pY = 200+p*2,
+			pZ = 0 + p*2,
 		    particle = new THREE.Vertex(
 				new THREE.Vector3(pX, pY, pZ)
 			);
@@ -113,36 +206,36 @@
 	particleSystem.sortParticles = true;
 
 	// add it to the scene
-	scene.addChild(particleSystem);
+	//scene.addChild(particleSystem);
 
 	// animation loop
 	function update() {
 
 		// add some rotation to the system
-		particleSystem.rotation.y += 0.00;
+	//	particleSystem.rotation.y += 0.00;
 
-		var pCount = particleCount;
-		while(pCount--) {
-			// get the particle
-			var particle = particles.vertices[pCount];
-
+		//var pCount = particleCount;
+	//	while(pCount--) {
+//			// get the particle
+//		var particle = particles.vertices[pCount];
+//
 			// check if we need to reset
-			if(particle.position.y < -200) {
-				particle.position.y = 200;
-				particle.velocity.y = -1;
-			}
-
+//			if(particle.position.y < -200) {
+	//			particle.position.y = 200;
+		//		particle.velocity.y = -1;
+//	/	}
+//
 
 
 			// and the position
-			particle.position.addSelf(
-				particle.velocity);
-		}
+//			particle.position.addSelf(
+	//			particle.velocity);
+		//}
 
 		// flag to the particle system that we've
 		// changed its vertices. This is the
 		// dirty little secret.
-		particleSystem.geometry.__dirtyVertices = true;
+		//particleSystem.geometry.__dirtyVertices = true;
 
 		renderer.render(scene, camera);
 
