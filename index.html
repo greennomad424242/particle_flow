@@ -1,247 +1,338 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<meta charset="utf-8" />
-		<title>Sample Three.js</title>
-		<style>
-			#container {
-				background: #000;
-				width: 400px;
-				height: 300px;
-			}
-		</style>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.js"></script>
+		<title>Interactive Cubes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
 
+		<script src="three.js"></script>
+		<link rel="shortcut icon" href="favicon.ico">
+		<script src="TrackballControls.js"></script>
 		<script src="BufferGeometryUtils.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://cdn.rawgit.com/Gmousse/dataframe-js/master/dist/dataframe.js"></script>
+
+
+
+		<link rel='stylesheet' href='styles.css'/>
 
 	</head>
 	<body>
-
-		<div id="container">
-
-
-		</div>
-
-	</body>
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<body>
+			<div class="grid2x2">
+			  <div class="box box1">
+			  	<div id="titlebar">Multi-dimensional Display
+					</div>
+					<span id="axis_select">Select axes:</span>
 
 
-	<script type="text/javascript">
+					<div id="instructions">
+					<span id="emphasis"> Instructions: </span><ul>
 
-	// @see http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-	window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame       ||
-              window.webkitRequestAnimationFrame ||
-              window.mozRequestAnimationFrame    ||
-              window.oRequestAnimationFrame      ||
-              window.msRequestAnimationFrame     ||
-              function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 1000 / 60);
-              };
-    })();
-	// set the scene size
-	var WIDTH = 400,
-	    HEIGHT = 300;
-			var particleCount = 18;
+							 <li><span id="emphasis">Rotate</span>: mouse &amp; hold A
+					  <li><span id="emphasis">Zoom</span>: mouse &amp; hold S
+						<li><span id="emphasis">Pan</span>: mouse &amp; hold D
+							<li><span id="emphasis">Auto-rotate start/stop</span>: press w
+							</ul>
+				 </div>
 
-var pickingData=[];
-	// set some camera attributes
-	var VIEW_ANGLE = 45,
-	    ASPECT = WIDTH / HEIGHT,
-	    NEAR = 0.1,
-	    FAR = 10000;
+					<div  id="axes_values" class="box_view">
+					</div>
+					<div id="data_box" class="box_view">
+					</div>
 
-	// get the DOM element to attach to
-	// - assume we've got jQuery to hand
-	var $container = $('#container');
+			  </div>
+			  <div class="box box2" id="main_area">
+				</div>
+      </div>
+<script>
 
-	// create a WebGL renderer, camera
-	// and a scene
-	var renderer = new THREE.WebGLRenderer();
-	var camera = new THREE.Camera(  VIEW_ANGLE,
-	                                ASPECT,
-	                                NEAR,
-	                                FAR  );
-	var scene = new THREE.Scene();
+var myFile = "wine.csv";
+var X_text,Y_text, Z_text, camera;
+var camera_x_pos =40;
 
-	// the camera starts at 0,0,0 so pull it back
-	camera.position.z = 300;
+var camera_y_pos =20;
+var camera_z_pos =20;
+var axis_text_size =5;
+var picked_var;
+var axis_text_height = 1;
+var x_color = '#cc0000';
+var y_color  = '#009900' ;
+var z_color  = '#0000e6';
+var rotSpeed =0;
+var opacity_value = 1;
+var rotateSpeed =2;
+var zoomSpeed=4;
+var panSpeed=2;
+var angle = 1;
+var delta =  0.005;
+var camera_x = 15;
+var camera_y = 40;
+var camera_z = 40;
+var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
+var side_length = 2;
+var picked_length = 4;
+var width = window.innerWidth -200;
+var height = window.innerHeight;
+var axis_length = 100;
+var X_text,Y_text, Z_text;
+var container, camera, controls, scene, renderer,  quaternion, num_rows, actual_array;
+var pickingData = [], pickingTexture, pickingScene;
+var highlightBox;
+var mouse = new THREE.Vector2();
+var DataFrame = dfjs.DataFrame;
+var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
+var orbit_default;
 
-	// start the renderer - set the clear colour
-	// to a full black
-	renderer.setClearColor(new THREE.Color(0, 1));
-	renderer.setSize(WIDTH, HEIGHT);
-
-	// attach the render-supplied DOM element
-	$container.append(renderer.domElement);
-
-	// create the particle variables
-	var
-	    particles = new THREE.Geometry(),
-		pMaterial = new THREE.ParticleBasicMaterial({
-			color: 0xFFFFFF,
-			size: 20,
-			map: THREE.ImageUtils.loadTexture(
-				"images/particle.png"
-			),
-			blending: THREE.AdditiveBlending,
-			transparent: true
-		});
-
-    // TO DO : create webpages
-
-		function applyVertexColors( geometry, color ) {
-			 var position = geometry.attributes.position;
-			 var colors = [];
-			 for ( var i = 0; i < position.count; i ++ ) {
-				 colors.push( color.r, color.g, color.b );
-			 }
-			 geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-		 }
-
-		var pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
-
-		var defaultMaterial = new THREE.MeshLambertMaterial(
-				{ color:  0xfffddd,
-				 emissive: 0xe6e600,
-				 emissiveIntensity:1,
-				 opacity: 0.5,
-				 transparent: false,
-				 vertexColors: 0xdddddd	} );
-var actual_array =[];
-
-
-side_length=5;
-axis_length=100;
-var min_x=0,min_y=0,min_z=0;
-var max_x=100, max_y=100, max_z=100;
-
-actual_array.push([10,10,10]);
-actual_array.push([20,20,20]);
-		 var geometriesDrawn = [];
-		 var linesDrawn = [];
-		 var geometriesPicking = [];
-		 var matrix = new THREE.Matrix4();
-		 quaternion = new THREE.Quaternion();
-		 var color = new THREE.Color();
-		 var num_rows = actual_array.length;
-		 for ( var i = 0; i < num_rows ; i ++ ) {
-			 var geometry = new THREE.BoxBufferGeometry();
-			 var position = new THREE.Vector3();
-			 sample_x = actual_array[i][0];
-			 sample_y = actual_array[i][1];
-			 sample_z = actual_array[i][2];
-			 target_x = Math.round((sample_x - min_x)/(max_x - min_x) * axis_length);
-			 target_y = Math.round((sample_y - min_y)/(max_y - min_y) * axis_length);
-			 target_z = Math.round((sample_z - min_z)/(max_z - min_z) * axis_length);
-			 position.x = target_x ;  //Math.random() * 10000 - 5000;
-			 position.y = target_y;//Math.random() * 6000 - 3000;
-			 position.z = 	target_z;//Math.random() * 8000 - 4000;
-			 var rotation = new THREE.Euler();
-			 rotation.x = 0;
-			 rotation.y = 0;
-			 rotation.z = 0;
-			 var scale = new THREE.Vector3();
-			 scale.x = side_length ;
-			 scale.y = side_length ;
-			 scale.z = side_length ;
-			 quaternion.setFromEuler( rotation, false );
-			 matrix.compose( position, quaternion, scale );
-			 geometry.applyMatrix( matrix );
-						 // give the geometry's vertices a random color, to be displayed
-			 var edges = new THREE.EdgesGeometry( geometry );
-			 var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
-			 scene.add( line);
-			 applyVertexColors( geometry, color.setHex(  0x009900 ) );
-			 linesDrawn.push( line );
-			 geometriesDrawn.push( geometry );
-			 geometry = geometry.clone();
-						 // give the geometry's vertices a color corresponding to the "id"
-			 applyVertexColors( geometry, color.setHex( i ) );
-			 geometriesPicking.push( geometry );
-			 pickingData[ i ] = {
-				 position: position,
-				 rotation: rotation,
-				 scale: scale
-			 };
-		 }
-
-		 var objects = new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesDrawn ), defaultMaterial );
-
-					 //objects.add( edges );
-		 scene.add( objects );
+// whether we rotate around
+var x = localStorage.getItem('orbit_default');
+if (x) {
+	orbit_default = x;
+} else {
+	orbit_default = 0;
+	localStorage.setItem('orbit_default',0); // orbit_default
+}
 
 
 
+function pickHex(color1, color2, weight) {
+    var w1 = weight;
+    var w2 = 1 - w1;
+    var rgb = [Math.round(color1[0] * w1 + color2[0] * w2),
+        Math.round(color1[1] * w1 + color2[1] * w2),
+        Math.round(color1[2] * w1 + color2[2] * w2)];
+    return rgb;
+}
+
+filter_data();
+function filter_data() {
+	var angle = 1;
+	var delta =  0.005;
+  actual_array = [];
+
+		actual_array.push([20,
+		                   10,
+									     10] );
+	  actual_array.push([10,
+																					10,
+																					10] );
 
 
-	// now create the individual particles
-	for(var p = 0; p < 0; p++) {
+	$('#x_color_box').css({"background-color":x_color});
+	$('#y_color_box').css({"background-color":y_color});
+	$('#z_color_box').css({"background-color":z_color});
 
-		// create a particle with random
-		// position values, -250 -> 250
-		var pX = 0 + p*2,
-			pY = 200+p*2,
-			pZ = 0 + p*2,
-		    particle = new THREE.Vertex(
-				new THREE.Vector3(pX, pY, pZ)
-			);
-		// create a velocity vector
-		particle.velocity = new THREE.Vector3(
-			0,				// x
-			-1,	// y
-			0);				// z
+	display(actual_array);
+}
 
-		// add it to the geometry
-		particles.vertices.push(particle);
+function applyVertexColors( geometry, color ) {
+	 var position = geometry.attributes.position;
+	 var colors = [];
+	 for ( var i = 0; i < position.count; i ++ ) {
+		 colors.push( color.r, color.g, color.b );
+	 }
+	 geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+ }
+
+function display() {
+	//initial setup
+ container = document.getElementById("main_area" );
+ renderer = new THREE.WebGLRenderer( { antialias: true } );
+ renderer.setPixelRatio( window.devicePixelRatio );
+ renderer.setSize( width, height );
+ container.appendChild( renderer.domElement );
+ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
+
+ camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+ camera.position.x = camera_x;
+ camera.position.y = camera_y;
+ camera.position.z = camera_z;
+ //
+ // Controls
+ //
+ controls = new THREE.TrackballControls( camera, renderer.domElement );
+ controls.rotateSpeed = 3.0;
+ controls.zoomSpeed = 6.4;
+ controls.panSpeed = 2.8;
+ controls.noZoom = false;
+ controls.noPan = false;
+ controls.staticMoving = true;
+ controls.dynamicDampingFactor = 0.2;
+ scene = new THREE.Scene();
+
+	//Lights
+
+ scene.background = new THREE.Color( 0x000000 );
+ pickingScene = new THREE.Scene();
+ pickingTexture = new THREE.WebGLRenderTarget( 1, 1 );
+ scene.add( new THREE.AmbientLight( 0x555555 ) );
+ var light = new THREE.SpotLight( 0xffffff, 1.5 );
+ light.position.set( 220, 200, 200 );
+ scene.add( light );
+
+ var lightHelper = new THREE.SpotLightHelper(light);
+	//scene.add (lightHelper);
+
+ var pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+ var defaultMaterial = new THREE.MeshLambertMaterial(
+	   { color:  0xfffddd,
+			emissive: 0xe6e600,
+			emissiveIntensity:1,
+			opacity: opacity_value,
+			transparent: false,
+			vertexColors: 0xdddddd	} );
+
+  var min_x=0,min_y=0, min_z =0;
+	var max_x=100, max_y=100, max_z=100;
+
+	var geometriesDrawn = [];
+	var linesDrawn = [];
+	var geometriesPicking = [];
+	var matrix = new THREE.Matrix4();
+	quaternion = new THREE.Quaternion();
+	var color = new THREE.Color();
+  var num_rows = actual_array.length;
+  for ( var i = 0; i < num_rows ; i ++ ) {
+	  var geometry = new THREE.BoxBufferGeometry();
+		var position = new THREE.Vector3();
+    sample_x = actual_array[i][0];
+ 		sample_y = actual_array[i][1];
+ 		sample_z = actual_array[i][2];
+ 		target_x = Math.round((sample_x - min_x)/(max_x - min_x) * axis_length);
+ 		target_y = Math.round((sample_y - min_y)/(max_y - min_y) * axis_length);
+ 		target_z = Math.round((sample_z - min_z)/(max_z - min_z) * axis_length);
+		position.x = target_x ;  //Math.random() * 10000 - 5000;
+		position.y = target_y;//Math.random() * 6000 - 3000;
+		position.z = 	target_z;//Math.random() * 8000 - 4000;
+		var rotation = new THREE.Euler();
+		rotation.x = 0;
+		rotation.y = 0;
+		rotation.z = 0;
+		var scale = new THREE.Vector3();
+		scale.x = side_length ;
+		scale.y = side_length ;
+		scale.z = side_length ;
+		quaternion.setFromEuler( rotation, false );
+		matrix.compose( position, quaternion, scale );
+		geometry.applyMatrix( matrix );
+					// give the geometry's vertices a random color, to be displayed
+		var edges = new THREE.EdgesGeometry( geometry );
+    var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
+  	scene.add( line);
+		applyVertexColors( geometry, color.setHex(  0x009900 ) );
+	  linesDrawn.push( line );
+		geometriesDrawn.push( geometry );
+		geometry = geometry.clone();
+					// give the geometry's vertices a color corresponding to the "id"
+		applyVertexColors( geometry, color.setHex( i ) );
+		geometriesPicking.push( geometry );
+		pickingData[ i ] = {
+			position: position,
+			rotation: rotation,
+			scale: scale
+		};
 	}
+	var objects = new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesDrawn ), defaultMaterial );
 
-	// create the particle system
-	var particleSystem = new THREE.ParticleSystem(
-		particles,
-		pMaterial);
+				//objects.add( edges );
+	scene.add( objects );
 
-	particleSystem.sortParticles = true;
+	pickingScene.add( new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesPicking ), pickingMaterial ) );
+	highlightBox = new THREE.Mesh(
+		new THREE.BoxBufferGeometry(),
+		new THREE.MeshLambertMaterial( { color: 0x254CA6 }
+		    ) );
 
-	// add it to the scene
-	//scene.addChild(particleSystem);
-
-	// animation loop
-	function update() {
-
-		// add some rotation to the system
-	//	particleSystem.rotation.y += 0.00;
-
-		//var pCount = particleCount;
-	//	while(pCount--) {
-//			// get the particle
-//		var particle = particles.vertices[pCount];
-//
-			// check if we need to reset
-//			if(particle.position.y < -200) {
-	//			particle.position.y = 200;
-		//		particle.velocity.y = -1;
-//	/	}
-//
+	scene.add( highlightBox );
+	axis = new THREE.AxesHelper(axis_length);
+	scene.add(axis);
+  animate() ;
 
 
-			// and the position
-//			particle.position.addSelf(
-	//			particle.velocity);
-		//}
+}
+			//
+function onMouseMove( e ) {
+	event.preventDefault();
+	mouse.x = e.clientX -200;
+	mouse.y = e.clientY;
+}
 
-		// flag to the particle system that we've
-		// changed its vertices. This is the
-		// dirty little secret.
-		//particleSystem.geometry.__dirtyVertices = true;
 
-		renderer.render(scene, camera);
 
-		// set up the next call
-		requestAnimFrame(update);
-	}
-	requestAnimFrame(update);
-	</script>
+function animate() {
+
+
+  requestAnimationFrame( animate );
+	render();
+
+}
+
+function pick() {
+	//render the picking scene off-screen
+	// set the view offset to represent just a single pixel under the mouse
+	camera.setViewOffset( renderer.domElement.width, renderer.domElement.height, mouse.x * window.devicePixelRatio | 0, mouse.y * window.devicePixelRatio | 0, 1, 1 );
+	// render the scene
+	renderer.render( pickingScene, camera, pickingTexture );
+	// clear the view offset so rendering returns to normal
+	camera.clearViewOffset();
+	//create buffer for reading single pixel
+	var pixelBuffer = new Uint8Array( 4 );
+	//read the pixel
+	renderer.readRenderTargetPixels( pickingTexture, 0, 0, 1, 1, pixelBuffer );
+
+	var allZeroes =  pixelBuffer.reduce(function(prev, item) {
+    return prev && (item === 0.0);
+  }, true);
+
+	if (allZeroes) {
+    highlightBox.visible = false;
+    document.getElementById('data_box').innerHTML="";
+		$('#data_box').hide();
+  } else {
+    $('#data_box').show();
+
+		//interpret the pixel as an ID
+		var id = ( pixelBuffer[ 0 ] << 16 ) | ( pixelBuffer[ 1 ] << 16 ) | ( pixelBuffer[ 2 ] );
+		var data = pickingData[ id ];
+
+		if ( data ) {
+			//move our highlightBox so that it surrounds the picked object
+			if ( data.position && data.rotation && data.scale ) {
+				highlightBox.position.copy( data.position );
+				highlightBox.rotation.copy( data.rotation );
+				highlightBox.scale.copy( data.scale ).add( offset );
+				highlightBox.visible = true;
+
+		  }
+		} else {
+					highlightBox.visible = false;
+		}
+  }
+}
+
+function render() {
+	controls.update();
+	pick();
+	renderer.render( scene, camera );
+}
+
+document.addEventListener("keydown", onDocumentKeyDown, false);
+
+function onDocumentKeyDown(event) {
+		var keyCode = event.which;
+		if (keyCode == 87) {  //A for action
+      if (orbit_default == 0 ) {
+        orbit_default =1;
+			}  else {
+       orbit_default =0;
+			}
+      localStorage.setItem('orbit_default',orbit_default);
+		}
+};
+
+
+</script>
+</body>
 </html>
