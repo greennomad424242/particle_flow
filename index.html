@@ -4,17 +4,12 @@
 		<title>Interactive Cubes</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
-
 		<script src="three.js"></script>
 		<link rel="shortcut icon" href="favicon.ico">
 		<script src="TrackballControls.js"></script>
 		<script src="BufferGeometryUtils.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdn.rawgit.com/Gmousse/dataframe-js/master/dist/dataframe.js"></script>
-
-
-
 		<link rel='stylesheet' href='styles.css'/>
 
 	</head>
@@ -48,12 +43,12 @@
       </div>
 <script>
 
-var myFile = "wine.csv";
-var X_text,Y_text, Z_text, camera,group;
+
 
 var axis_text_size =5;
-var picked_var;
+var side_length = 20;
 var speed_multiplier =70;
+var shift_value = 5;
 var axis_text_height = 1;
 var x_color = '#cc0000';
 var y_color  = '#009900' ;
@@ -71,37 +66,22 @@ var camera_x = 15;
 var camera_y = 80;
 var camera_z = 80;
 var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
-var side_length = 2;
-var picked_length = 4;
+
+var picked_length = 0;
 var width = window.innerWidth -200;
 var height = window.innerHeight;
 var axis_length = 100;
 var X_text,Y_text, Z_text;
-var container, camera, controls, scene, renderer,  quaternion, num_rows, actual_array;
-var pickingData = [], pickingTexture, pickingScene;
-var highlightBox;
+var picked_var;
+var container, camera, controls, scene, renderer,  quaternion,
+ num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
+var highlightBox, orbit_default;
 var mouse = new THREE.Vector2();
 var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
-var orbit_default;
+var texture_in,   texture_inter;
 
-// whether we rotate around
-var x = localStorage.getItem('orbit_default');
-if (x) {
-	orbit_default = x;
-} else {
-	orbit_default = 0;
-	localStorage.setItem('orbit_default',0); // orbit_default
-}
-
-
-
-
-function render() {
-	controls.update();
-//	pick();
-	renderer.render( scene, camera );
-}
+//  ---- minor functions
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
 
@@ -126,30 +106,6 @@ function pickHex(color1, color2, weight) {
     return rgb;
 }
 
-filter_data();
-
-function filter_data() {
-	var angle = 1;
-	var delta =  0.005;
-  page_array = [];
-  traffic_array =[];
-
-	page_array.push({ id: 1, name:"home", x:10,y:10,z:10} );
-	page_array.push({ id: 2, name:"about", x:20, y:10,z:10} );
-	page_array.push({ id: 3, name:"product", x:30,y:10,z:10} );
-  page_array.push({ id: 4, name:"checkout", x:30,y:10,z:10} );
-
- traffic_array.push({ id: 1, step: 0, type:'enter', src: 0, dest: 1});
-
- traffic_array.push({ id: 1, step: 1, type:'transit', src: 1, dest: 2});
- traffic_array.push({ id: 1, step: 2, type:'transit', src: 2, dest: 3});
- traffic_array.push({ id: 1, step: 3, type:'exit', src: 3, dest: 0});
- traffic_array.push({ id: 2, step: 0, type:'enter', src: 0, dest: 2});
- traffic_array.push({ id: 2, step: 1, type:'exit', src: 2, dest: 0});
-
-	display(page_array);
-}
-
 function applyVertexColors( geometry, color ) {
 	 var position = geometry.attributes.position;
 	 var colors = [];
@@ -158,6 +114,51 @@ function applyVertexColors( geometry, color ) {
 	 }
 	 geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
  }
+
+/*----- Data structure
+
+ page_array
+  - page_id
+  - name
+	- x
+	- y
+	- z
+
+	page_inbound
+  - page_id
+	- channel
+	- volume
+
+ interpage_traffic
+	- id
+	- src
+	- dest
+	- volume
+
+*/
+
+get_data();
+
+function get_data() {
+
+  page_array = [];
+  interpage_traffic =[];
+	page_inbound =[];
+
+	page_array.push({ page_id: 1, name:"home", x:10,y:10,z:10} );
+	page_array.push({ page_id: 2, name:"about", x:40, y:10,z:10} );
+	page_array.push({ page_id: 3, name:"product", x:70,y:10,z:10} );
+  page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:50} );
+  page_inbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
+	page_inbound.push({id: 2, page_id: 2,channel: 'organic', volume: 40});
+
+  interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 10, shift: shift_value});
+  interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 10, shift: -1*shift_value});
+
+	display();
+}
+
+
 
 function display() {
 	//initial setup
@@ -185,6 +186,10 @@ function display() {
  controls.dynamicDampingFactor = 0.2;
  scene = new THREE.Scene();
 
+
+ axis = new THREE.AxesHelper(axis_length);
+ 	scene.add(axis);
+
 	//Lights
 
  scene.background = new THREE.Color( 0x000000 );
@@ -195,37 +200,16 @@ function display() {
  light.position.set( 220, 200, 200 );
  //scene.add( light );
 
-
-//CylinderGeometry(radiusTop : Float, radiusBottom : Float, height : Float, radialSegments : Integer, heightSegments : Integer, openEnded : Boolean, thetaStart : Float, thetaLength : Float)
-
-const textureLoader = new THREE.TextureLoader();
-
- // Load a texture. See the note in chapter 4 on working locally, or the page
- // https://threejs.org/docs/#manual/introduction/How-to-run-things-locally
- // if you run into problems here
- const texture = textureLoader.load( 'chevron.png' );
-
- texture.anisotropy = 16;
-
- // create a Standard material using the texture we just loaded as a color map
- material = new THREE.MeshLambertMaterial( {
-	 map: texture,	 emissiveIntensity:0
- } );
-
-
-
- var geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
-
- var cylinder = new THREE.Mesh( geometry, material );
- scene.add( cylinder );
-
  var light2 = new THREE.AmbientLight( 0x404040 ); // soft white light
  scene.add( light2 );
 
  var lightHelper = new THREE.SpotLightHelper(light);
 //	scene.add (lightHelper);
 
- var pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+//
+// Create the Pages
+//
 
  var defaultMaterial = new THREE.MeshLambertMaterial(
 	   { color:  0xfffddd,
@@ -235,8 +219,6 @@ const textureLoader = new THREE.TextureLoader();
 			transparent: false,
 			vertexColors: 0xdddddd	} );
 
-
-
 	var geometriesDrawn = [];
 	var linesDrawn = [];
 	var geometriesPicking = [];
@@ -245,9 +227,7 @@ const textureLoader = new THREE.TextureLoader();
 	var color = new THREE.Color();
   var num_rows = page_array.length;
 
-	//
-	// Create the Pages
-	//
+
 
   for ( var i = 0; i < num_rows ; i ++ ) {
 	  var geometry = new THREE.BoxBufferGeometry();
@@ -289,53 +269,113 @@ const textureLoader = new THREE.TextureLoader();
 			scale: scale
 		};
 	}
-
-
 	var objects = new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesDrawn ), defaultMaterial );
 	scene.add( objects );
 
+
 	//
-	//  Cubes
+	//  Inbound Cyclinders
 	//
-	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	// Create the Material passing the color
-	var material = new THREE.MeshBasicMaterial( { color: "#5c5cd6" } );
 
-	cube = new THREE.Mesh( geometry, material );
-	group = new THREE.Group();
 
-// create a cube for each row of data
-	var selected_data = $.grep(traffic_array, function(v) {
-			return v.step ==  0;
-	});
-  var num_rows = selected_data.length;
+	const textureLoader = new THREE.TextureLoader();
+	texture_in = textureLoader.load( 'green_arrow.png', function ( texture ) {
+		texture.wrapS = THREE.RepeatWrapping;
+	  texture.wrapT = THREE.RepeatWrapping;
+	  texture.repeat.set( 4, 4 );
+	 } );
 
-	var dir = new THREE.Vector3( 10, 2, 0 );
+	 texture_in.anisotropy = 1;
+ 	 material_in = new THREE.MeshLambertMaterial( {
+ 		 map: texture_in,	 emissiveIntensity:0
+ 	 } );
+	  texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
+ 		texture.wrapS = THREE.RepeatWrapping;
+ 	  texture.wrapT = THREE.RepeatWrapping;
+ 	  texture.repeat.set( 8, 8 );
+ 	 } );
 
-	//normalize the direction vector (convert to vector of length 1)
-	dir.normalize();
+	texture_inter.anisotropy = 1;
+	 material_inter = new THREE.MeshLambertMaterial( {
+		 map: texture_inter,	 emissiveIntensity:0
+	 } );
+	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
+var instance;
 
-	var origin = new THREE.Vector3( 0, 0, 0 );
-	var length = 5;
-	var headWidth = 2;
-	var headLength = 3;
 
-	var hex = 0xffff00;
+inbound_group = new THREE.Group();
+  // cycle over the inbound traffic
+	 for (q=0; q < page_inbound.length; q++) {
 
-	var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex, headLength , headWidth );
-	scene.add( arrowHelper );
-
-  //for each cube
-	for ( var i = 1; i < num_rows+1 ; i ++ ) {
-	  // look up where the cube is starting from
-	 	cube.userData.id = i;
-		cube.userData.step = -1;
-		cube.userData.hold = 0;
-		next_step(cube);
-		instance = cube.clone();
-		group.add(instance );
+	     var target_page = $.grep(page_array, function(v) {
+		      	return v.page_id ==  page_inbound[q].page_id ;
+	     });
+			 var geometry = new THREE.CylinderGeometry( 5, 5,page_inbound[q].volume, 32,32 );
+			 var cylinder = new THREE.Mesh( geometry, material_in );
+			 cylinder.position.x = target_page[0].x;
+			 cylinder.position.y = target_page[0].y+side_length/2;
+			 cylinder.position.z = target_page[0].z+side_length/4 ;
+			 instance = cylinder.clone();
+			 inbound_group.add(instance );
 	}
-	scene.add(group );
+	scene.add(inbound_group );
+
+
+
+
+function cylinderMesh(pointX, pointY, material) {
+            var direction = new THREE.Vector3().subVectors(pointY, pointX);
+            var orientation = new THREE.Matrix4();
+            orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
+            orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, -1, 0, 0,
+                0, 0, 0, 1));
+            var edgeGeometry = new THREE.CylinderGeometry(2, 2, direction.length(), 8, 1);
+            var edge = new THREE.Mesh(edgeGeometry, material);
+            edge.applyMatrix(orientation);
+            // position based on midpoints - there may be a better solution than this
+            edge.position.x = (pointY.x + pointX.x) / 2;
+            edge.position.y = (pointY.y + pointX.y) / 2;
+            edge.position.z = (pointY.z + pointX.z) / 2;
+            return edge;
+        }
+
+interpage_group = new THREE.Group();
+
+for (q=0; q < interpage_traffic.length; q++) {
+	var src_page = $.grep(page_array, function(v) {
+			 return v.page_id ==  interpage_traffic[q].src ;
+	});
+	var dest_page = $.grep(page_array, function(v) {
+			 return v.page_id ==  interpage_traffic[q].dest ;
+  });
+
+
+   var pointX= new THREE.Vector3();
+	 pointX.x= src_page[0].x;
+	 pointX.y = src_page[0].y +interpage_traffic[q].shift;
+	 pointX.z = src_page[0].z;
+
+
+ var pointY= new THREE.Vector3();
+ pointY.x = dest_page[0].x;
+ pointY.y = dest_page[0].y+interpage_traffic[q].shift;
+ pointY.z = dest_page[0].z;
+
+  console.log("---");
+
+ if (interpage_traffic[q].shift > 0 ) {
+	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
+}
+else {
+	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
+}
+	instance = cylinder_element.clone();
+	interpage_group.add(instance );
+}
+scene.add(	interpage_group );
+
   animate() ;
 }
 
@@ -347,38 +387,7 @@ function onMouseMove( e ) {
 
 
 
-function animate() {
 
- var l = group.children.length;
- for (var i = 0; i < l; i++) {
-	 object = group.children[i];
-   if (object.userData.hold ==1) {
-
-   } else if ((object.userData.end_x > object.position.x &&  object.userData.velocity_x <0  ) ||
-	    (object.userData.end_x < object.position.x &&  object.userData.velocity_x >0  ) ||
-	    (object.userData.end_y >  object.position.y &&  object.userData.velocity_y <0  ) ||
-	    (object.userData.end_y <  object.position.y &&  object.userData.velocity_y >0  ) ||
-	  	(object.userData.end_z >  object.position.z &&  object.userData.velocity_z <0  ) ||
-			(object.userData.end_z <  object.position.z &&  object.userData.velocity_z >0  )) {
-
-     next_step(object);
-
-   } else {
-			object.translateX(object.userData.velocity_x);
-			object.translateY(object.userData.velocity_y);
-			object.translateZ(object.userData.velocity_z);
-	 }
- }
-
- for (var i = group.children.length - 1; i >= 0; i--) {
-	 if (group.children[i].userData.delete == 1) {
-	   group.remove(group.children[i]);
-   }
-}
-
- requestAnimationFrame( animate );
- render();
-}
 
 function pick() {
 	//render the picking scene off-screen
@@ -423,79 +432,18 @@ function pick() {
   }
 }
 
-function next_step(object) {
-  //
-	// find th
-	console.log("id:" + object.userData.id);
-	console.log("step:" + object.userData.step);
-  //console.log(traffic_array);
-	var selected_data = $.grep(traffic_array, function(v) {
-			return v.step ==  (object.userData.step + 1) &&  v.id ==  (object.userData.id) ;
-	});
-
-
-  if (selected_data[0]) {
-
-	var src = selected_data[0].src ;
-	var dest = selected_data[0].dest ;
-  var type = selected_data[0].type ;
-
-  var start_box = $.grep(page_array, function(v) {
-		return v.id ==  src;
-  });
-
-  var end_box = $.grep(page_array, function(v) {
-		return v.id == dest;
-  });
-
-  if (type  =="enter")  {
-		sample_x1 = end_box[0].x;
-	  sample_y1 = end_box[0].y;
-	  sample_z1 = end_box[0].z-10;
-
-	} else {
-	 sample_x1 = start_box[0].x;
-	 sample_y1 = start_box[0].y;
-	 sample_z1 = start_box[0].z;
+function render() {
+	controls.update();
+  texture_in.offset.y += .02;
+  texture_inter.offset.y += .02;
+	renderer.render( scene, camera );
 }
 
-if (type  =="exit")  {
-	sample_x2 = start_box[0].x;
-	sample_y2 = start_box[0].y;
-	sample_z2 = start_box[0].z+10;
+function animate() {
+ requestAnimationFrame( animate );
 
-} else {
-	 sample_x2 = end_box[0].x;
-	 sample_y2 = end_box[0].y;
-	 sample_z2 = end_box[0].z;
-
+ render();
 }
-
-object.userData.start_x = Math.round((sample_x1 - min_x)/(max_x - min_x) * axis_length);
-object.userData.start_y = Math.round((sample_y1 - min_y)/(max_y - min_y) * axis_length);
-object.userData.start_z = Math.round((sample_z1 - min_z)/(max_z - min_z) * axis_length);
-object.userData.end_x= Math.round((sample_x2 - min_x)/(max_x - min_x) * axis_length);
-object.userData.end_y = Math.round((sample_y2 - min_y)/(max_y - min_y) * axis_length);
-object.userData.end_z = Math.round((sample_z2 - min_z)/(max_z - min_z) * axis_length);
-object.userData.velocity_x = (object.userData.end_x - object.userData.start_x )/speed_multiplier;
-object.userData.velocity_y =(object.userData.end_y - object.userData.start_y )/speed_multiplier;
-object.userData.velocity_z = (object.userData.end_z - object.userData.start_z )/speed_multiplier;
-object.position.x = object.userData.start_x;
-object.position.y = object.userData.start_y;
-object.position.z = object.userData.start_z;
-object.userData.step +=1 ;
-object.userData.hold = 0;
-} else {
-object.userData.delete = 1;
-}
-
-
-//return object
-
-}
-
-
-
 
 </script>
 </body>
