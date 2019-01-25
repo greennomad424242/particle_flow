@@ -7,6 +7,7 @@
 		<script src="three.js"></script>
 		<link rel="shortcut icon" href="favicon.ico">
 		<script src="TrackballControls.js"></script>
+		<script src="ParametricGeometries.js"></script>
 		<script src="BufferGeometryUtils.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdn.rawgit.com/Gmousse/dataframe-js/master/dist/dataframe.js"></script>
@@ -46,10 +47,18 @@
 
 
 var axis_text_size =5;
-var side_length = 20;
+var page_height = 20;
+var page_diameter = 10;
 var speed_multiplier =70;
 var shift_value = 5;
 var axis_text_height = 1;
+
+var texture_in_offset =0.0001;
+var texture_inter_offset =0.01;
+var texture_out_offset =0.01;
+var texture_out;
+
+
 var x_color = '#cc0000';
 var y_color  = '#009900' ;
 var z_color  = '#0000e6';
@@ -167,7 +176,6 @@ function display() {
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
- renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 
  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
  camera.position.x = camera_x;
@@ -211,67 +219,59 @@ function display() {
 // Create the Pages
 //
 
- var defaultMaterial = new THREE.MeshLambertMaterial(
-	   { color:  0xfffddd,
-			emissive: 0xe6e600,
-			emissiveIntensity:1,
-			opacity: opacity_value,
-			transparent: false,
-			vertexColors: 0xdddddd	} );
 
-	var geometriesDrawn = [];
-	var linesDrawn = [];
-	var geometriesPicking = [];
-	var matrix = new THREE.Matrix4();
-	quaternion = new THREE.Quaternion();
-	var color = new THREE.Color();
+
+  page_group = new THREE.Group();
+
   var num_rows = page_array.length;
 
 
+  for ( var i = num_rows; i < num_rows ; i ++ ) {
 
-  for ( var i = 0; i < num_rows ; i ++ ) {
-	  var geometry = new THREE.BoxBufferGeometry();
-		var position = new THREE.Vector3();
-    sample_x = page_array[i].x;
- 		sample_y = page_array[i].y;
- 		sample_z = page_array[i].z;
- 		target_x = Math.round((sample_x - min_x)/(max_x - min_x) * axis_length);
- 		target_y = Math.round((sample_y - min_y)/(max_y - min_y) * axis_length);
- 		target_z = Math.round((sample_z - min_z)/(max_z - min_z) * axis_length);
-		position.x = target_x ;  //Math.random() * 10000 - 5000;
-		position.y = target_y;//Math.random() * 6000 - 3000;
-		position.z = 	target_z;//Math.random() * 8000 - 4000;
-		var rotation = new THREE.Euler();
-		rotation.x = 0;
-		rotation.y = 0;
-		rotation.z = 0;
-		var scale = new THREE.Vector3();
-		scale.x = side_length ;
-		scale.y = side_length ;
-		scale.z = side_length ;
-		quaternion.setFromEuler( rotation, false );
-		matrix.compose( position, quaternion, scale );
-		geometry.applyMatrix( matrix );
-					// give the geometry's vertices a random color, to be displayed
-		var edges = new THREE.EdgesGeometry( geometry );
-    var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
-  	scene.add( line);
-		applyVertexColors( geometry, color.setHex(  0x009900 ) );
-	  linesDrawn.push( line );
-		geometriesDrawn.push( geometry );
-		geometry = geometry.clone();
-					// give the geometry's vertices a color corresponding to the "id"
-		applyVertexColors( geometry, color.setHex( i ) );
-		geometriesPicking.push( geometry );
-		pickingData[ i ] = {
-			position: position,
-			rotation: rotation,
-			scale: scale
-		};
-	}
-	var objects = new THREE.Mesh( THREE.BufferGeometryUtils.mergeBufferGeometries( geometriesDrawn ), defaultMaterial );
-	scene.add( objects );
+		const bodyMaterial = new THREE.MeshStandardMaterial( {
+	 color: 0xff3333, // red
+	 flatShading: true,
+	 shading: THREE.FlatShading,
+			 polygonOffset: true,
+			 polygonOffsetFactor: 1, // positive value pushes polygon further away
+			 polygonOffsetUnits: 1
+ } );
 
+ const detailMaterial = new THREE.MeshStandardMaterial( {
+	 color: 0x333333, // darkgrey
+	 flatShading: true,
+ } );
+
+geometry = new THREE.CylinderBufferGeometry( 10, 10, 20, 12 );
+cylinder = new THREE.Mesh( geometry, bodyMaterial );
+cylinder.position.x = page_array[i].x;
+cylinder.position.y = page_array[i].y;
+cylinder.position.z = page_array[i].z;
+
+    instance = cylinder.clone();
+
+		//page_group.add( new THREE.Mesh( geometry, meshMaterial ) );
+			page_group .add(instance );
+
+
+  }
+  scene.add(page_group );
+
+
+	test_group = new THREE.Group();
+
+
+	var geometry = new THREE.CylinderBufferGeometry( 5, 5, 20, 32 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffdd00} );
+	var cylinder = new THREE.Mesh( geometry, material );
+	test_group.add( cylinder );
+
+
+	var edges = new THREE.EdgesGeometry( geometry );
+	var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
+	test_group.add( line );
+test_group.position.x = 50;
+    scene.add(test_group);
 
 	//
 	//  Inbound Cyclinders
@@ -305,7 +305,7 @@ var instance;
 
 inbound_group = new THREE.Group();
   // cycle over the inbound traffic
-	 for (q=0; q < page_inbound.length; q++) {
+	 for (q=page_inbound.length; q <   page_inbound.length; q++) {
 
 	     var target_page = $.grep(page_array, function(v) {
 		      	return v.page_id ==  page_inbound[q].page_id ;
@@ -313,8 +313,8 @@ inbound_group = new THREE.Group();
 			 var geometry = new THREE.CylinderGeometry( 5, 5,page_inbound[q].volume, 32,32 );
 			 var cylinder = new THREE.Mesh( geometry, material_in );
 			 cylinder.position.x = target_page[0].x;
-			 cylinder.position.y = target_page[0].y+side_length/2;
-			 cylinder.position.z = target_page[0].z+side_length/4 ;
+			 cylinder.position.y = target_page[0].y+page_diameter/2;
+			 cylinder.position.z = target_page[0].z+page_diameter/4 ;
 			 instance = cylinder.clone();
 			 inbound_group.add(instance );
 	}
@@ -341,9 +341,12 @@ function cylinderMesh(pointX, pointY, material) {
             return edge;
         }
 
+
+
+
 interpage_group = new THREE.Group();
 
-for (q=0; q < interpage_traffic.length; q++) {
+for (q=interpage_traffic.length; q < interpage_traffic.length; q++) {
 	var src_page = $.grep(page_array, function(v) {
 			 return v.page_id ==  interpage_traffic[q].src ;
 	});
@@ -366,7 +369,7 @@ for (q=0; q < interpage_traffic.length; q++) {
   console.log("---");
 
  if (interpage_traffic[q].shift > 0 ) {
-	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
+	  var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
 }
 else {
 	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
@@ -379,63 +382,16 @@ scene.add(	interpage_group );
   animate() ;
 }
 
-function onMouseMove( e ) {
-	event.preventDefault();
-	mouse.x = e.clientX -200;
-	mouse.y = e.clientY;
-}
 
 
 
-
-
-function pick() {
-	//render the picking scene off-screen
-	// set the view offset to represent just a single pixel under the mouse
-	camera.setViewOffset( renderer.domElement.width, renderer.domElement.height, mouse.x * window.devicePixelRatio | 0, mouse.y * window.devicePixelRatio | 0, 1, 1 );
-	// render the scene
-	renderer.render( pickingScene, camera, pickingTexture );
-	// clear the view offset so rendering returns to normal
-	camera.clearViewOffset();
-	//create buffer for reading single pixel
-	var pixelBuffer = new Uint8Array( 4 );
-	//read the pixel
-	renderer.readRenderTargetPixels( pickingTexture, 0, 0, 1, 1, pixelBuffer );
-
-	var allZeroes =  pixelBuffer.reduce(function(prev, item) {
-    return prev && (item === 0.0);
-  }, true);
-
-	if (allZeroes) {
-    highlightBox.visible = false;
-    document.getElementById('data_box').innerHTML="";
-		$('#data_box').hide();
-  } else {
-    $('#data_box').show();
-
-		//interpret the pixel as an ID
-		var id = ( pixelBuffer[ 0 ] << 16 ) | ( pixelBuffer[ 1 ] << 16 ) | ( pixelBuffer[ 2 ] );
-		var data = pickingData[ id ];
-
-		if ( data ) {
-			//move our highlightBox so that it surrounds the picked object
-			if ( data.position && data.rotation && data.scale ) {
-				highlightBox.position.copy( data.position );
-				highlightBox.rotation.copy( data.rotation );
-				highlightBox.scale.copy( data.scale ).add( offset );
-				highlightBox.visible = true;
-
-		  }
-		} else {
-					highlightBox.visible = false;
-		}
-  }
-}
 
 function render() {
 	controls.update();
-  texture_in.offset.y += .02;
-  texture_inter.offset.y += .02;
+  texture_in.offset.y += texture_in_offset;
+	texture_out = texture_in;
+  texture_inter.offset.y += texture_inter_offset;
+  texture_out.offset.y += texture_out_offset;
 	renderer.render( scene, camera );
 }
 
