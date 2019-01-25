@@ -28,8 +28,8 @@
 
 
 var axis_text_size =5;
-var page_height = 10;
-var page_diameter = 3;
+var page_height = 15;
+var page_diameter = 5;
 var speed_multiplier =70;
 
 var axis_text_height = 1;
@@ -144,6 +144,7 @@ function get_data() {
   page_array = [];
   interpage_traffic =[];
 	page_inbound =[];
+		page_outbound =[];
 
   var units = 10;
 	page_array.push({ page_id: 1, name:"home", x:50,y:10,z:50} );
@@ -153,6 +154,9 @@ function get_data() {
 
   page_inbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
 	page_inbound.push({id: 2, page_id: 2,channel: 'organic', volume: 40});
+
+	page_outbound.push({id: 2, page_id: 2,channel: 'organic', volume: 20});
+page_outbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
 
   interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 1});
   interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 3});
@@ -222,7 +226,7 @@ function display() {
 
  for (var k=0; k<page_array.length; k++) {
 	var geometry = new THREE.CylinderBufferGeometry( page_diameter, page_diameter,  page_height, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xA5A7A4} );
+	var material = new THREE.MeshBasicMaterial( {color: 0x67A9C8} );
 	var cylinder = new THREE.Mesh( geometry, material );
 	var edges = new THREE.EdgesGeometry( geometry );
 	var line = new THREE.Line( edges, new THREE.LineBasicMaterial( { color: 0x818281 } ) );
@@ -274,13 +278,49 @@ scene.add(page_group);
 		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_inbound[q].volume, 32,32 );
 		var cylinder = new THREE.Mesh( geometry, material_in );
 		cylinder.position.x = target_page[0].x - page_diameter/4;
-
-		cylinder.position.y = target_page[0].y + page_height+5 ;
+		cylinder.position.y = target_page[0].y + page_height ;
 		cylinder.position.z = target_page[0].z ;
 		instance = cylinder.clone();
 		inbound_group.add(instance );
 	}
 	scene.add(inbound_group );
+
+
+// Outbound
+
+
+	texture_out = textureLoader.load( 'red_arrow.png', function ( texture ) {
+		texture.wrapS = THREE.RepeatWrapping;
+	  texture.wrapT = THREE.RepeatWrapping;
+	  texture.repeat.set( 4, 4 );
+	} );
+
+	texture_out.anisotropy = 1;
+
+	material_out = new THREE.MeshLambertMaterial( {
+		map: texture_out,	 emissiveIntensity:0
+	} );
+
+
+ var instance;
+ outbound_group = new THREE.Group();
+  // cycle over the inbound traffic
+	for (q=0; q <   page_outbound.length; q++) {
+    var target_page = $.grep(page_array, function(v) {
+		      	return v.page_id ==  page_outbound[q].page_id ;
+	  });
+
+	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
+		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_outbound[q].volume, 32,32 );
+		var cylinder = new THREE.Mesh( geometry, material_out );
+		cylinder.position.x = target_page[0].x + page_diameter/4;
+		cylinder.position.y = target_page[0].y + page_height ;
+		cylinder.position.z = target_page[0].z  + page_diameter/4 ;
+		instance = cylinder.clone();
+		outbound_group.add(instance );
+	}
+	scene.add(outbound_group );
+
 
 
 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
@@ -328,7 +368,7 @@ for (q=0; q < interpage_traffic.length; q++) {
   animate() ;
 }
 
-function cylinderMesh(point1, point2, material, volume) {
+function cylinderMesh( point2, point1,material, volume) {
 
 var x_delta, y_delta, z_delta;
    // point1 is always the source
@@ -386,7 +426,7 @@ var x_delta, y_delta, z_delta;
 function render() {
 	controls.update();
   texture_in.offset.y += texture_in_offset;
-	texture_out = texture_in;
+	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
 
 	renderer.render( scene, camera );
