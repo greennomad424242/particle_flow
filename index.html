@@ -16,39 +16,20 @@
 	</head>
 	<body>
 		<body>
-			<div class="grid2x2">
-			  <div class="box box1">
-			  	<div id="titlebar">Multi-dimensional Display
-					</div>
-					<span id="axis_select">Select axes:</span>
 
 
-					<div id="instructions">
-					<span id="emphasis"> Instructions: </span><ul>
 
-							 <li><span id="emphasis">Rotate</span>: mouse &amp; hold A
-					  <li><span id="emphasis">Zoom</span>: mouse &amp; hold S
-						<li><span id="emphasis">Pan</span>: mouse &amp; hold D
-							<li><span id="emphasis">Auto-rotate start/stop</span>: press w
-							</ul>
-				 </div>
 
-					<div  id="axes_values" class="box_view">
-					</div>
-					<div id="data_box" class="box_view">
-					</div>
+			  <div  id="main_area">
 
-			  </div>
-			  <div class="box box2" id="main_area">
-				</div>
-      </div>
+  </div>
 <script>
 
 
 
 var axis_text_size =5;
 var page_height = 20;
-var page_diameter = 10;
+var page_diameter = 8;
 var speed_multiplier =70;
 var shift_value = 5;
 var axis_text_height = 1;
@@ -77,7 +58,7 @@ var camera_z = 80;
 var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
 var picked_length = 0;
-var width = window.innerWidth -200;
+var width = window.innerWidth;
 var height = window.innerHeight;
 var axis_length = 100;
 var X_text,Y_text, Z_text;
@@ -124,6 +105,55 @@ function applyVertexColors( geometry, color ) {
 	 geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
  }
 
+
+ function cylinderMesh(pointX, pointY, material) {
+
+
+	 var numPoints = 100;
+
+
+
+	 var path = [  pointX,
+	 new THREE.Vector3(pointX.x +50,
+		                 pointX.y ,
+									 pointX.z ),
+		pointY
+ ];
+
+ var pathBase = new THREE.CatmullRomCurve3(path);
+
+	 var geometry = new THREE.TubeGeometry(pathBase, 20, 2, 8 );
+
+	 var mesh = new THREE.Mesh( geometry, material );
+//scene.add( mesh );
+
+
+
+
+ 	var direction = new THREE.Vector3().subVectors(pointY, pointX);
+ 	var orientation = new THREE.Matrix4();
+ 	orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
+ 	orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
+ 	    0, 0, 1, 0,
+ 	    0, -1, 0, 0,
+ 	    0, 0, 0, 1));
+ 	var edgeGeometry = new THREE.CylinderGeometry(2, 2, direction.length(), 8, 1);
+ 	var edge = new THREE.Mesh(edgeGeometry, material);
+ 	edge.applyMatrix(orientation);
+ 	// position based on midpoints - there may be a better solution than this
+ 	edge.position.x = (pointY.x + pointX.x) / 2;
+ 	edge.position.y = (pointY.y + pointX.y) / 2;
+ 	edge.position.z = (pointY.z + pointX.z) / 2;
+ 	return mesh;
+ 	}
+
+
+
+
+
+
+
+
 /*----- Data structure
 
  page_array
@@ -163,6 +193,13 @@ function get_data() {
 
   interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 10, shift: shift_value});
   interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 10, shift: -1*shift_value});
+
+interpage_traffic.push({id:3, src: 2 ,dest: 3, volume: 5, shift: -1*shift_value});
+interpage_traffic.push({id:4, src: 3 ,dest: 2, volume: 8, shift: shift_value});
+
+interpage_traffic.push({id:5, src: 1 ,dest: 4, volume: 5, shift: -1*shift_value});
+interpage_traffic.push({id:5, src: 4 ,dest: 1, volume: 8, shift: shift_value});
+
 
 	display();
 }
@@ -218,135 +255,88 @@ function display() {
 //
 // Create the Pages
 //
+ var num_rows = page_array.length;
+ page_group = new THREE.Group();
 
-
-
-  page_group = new THREE.Group();
-
-  var num_rows = page_array.length;
-
-
-  for ( var i = num_rows; i < num_rows ; i ++ ) {
-
-		const bodyMaterial = new THREE.MeshStandardMaterial( {
-	 color: 0xff3333, // red
-	 flatShading: true,
-	 shading: THREE.FlatShading,
-			 polygonOffset: true,
-			 polygonOffsetFactor: 1, // positive value pushes polygon further away
-			 polygonOffsetUnits: 1
- } );
-
- const detailMaterial = new THREE.MeshStandardMaterial( {
-	 color: 0x333333, // darkgrey
-	 flatShading: true,
- } );
-
-geometry = new THREE.CylinderBufferGeometry( 10, 10, 20, 12 );
-cylinder = new THREE.Mesh( geometry, bodyMaterial );
-cylinder.position.x = page_array[i].x;
-cylinder.position.y = page_array[i].y;
-cylinder.position.z = page_array[i].z;
-
-    instance = cylinder.clone();
-
-		//page_group.add( new THREE.Mesh( geometry, meshMaterial ) );
-			page_group .add(instance );
-
-
-  }
-  scene.add(page_group );
-
-
-	test_group = new THREE.Group();
-
-
-	var geometry = new THREE.CylinderBufferGeometry( 5, 5, 20, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffdd00} );
+ for (var k=0; k<page_array.length; k++) {
+	var geometry = new THREE.CylinderBufferGeometry( page_diameter, page_diameter,  page_height, 32 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xA5A7A4} );
 	var cylinder = new THREE.Mesh( geometry, material );
-	test_group.add( cylinder );
-
-
 	var edges = new THREE.EdgesGeometry( geometry );
-	var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
-	test_group.add( line );
-test_group.position.x = 50;
-    scene.add(test_group);
+	var line = new THREE.Line( edges, new THREE.LineBasicMaterial( { color: 0x818281 } ) );
+
+	cylinder.position.x = page_array[k].x;
+	cylinder.position.y = page_array[k].y;
+	cylinder.position.z = page_array[k].z;
+
+	line.position.x = page_array[k].x;
+	line.position.y = page_array[k].y;
+	line.position.z = page_array[k].z;
+
+	var instance = cylinder.clone();
+	page_group.add( instance );
+	var line_instance = line.clone();
+	page_group.add( line_instance );
+}
+scene.add(page_group);
+
+
 
 	//
-	//  Inbound Cyclinders
+	//  Inbound Traffic Cyclinders
 	//
-
 
 	const textureLoader = new THREE.TextureLoader();
 	texture_in = textureLoader.load( 'green_arrow.png', function ( texture ) {
 		texture.wrapS = THREE.RepeatWrapping;
 	  texture.wrapT = THREE.RepeatWrapping;
 	  texture.repeat.set( 4, 4 );
-	 } );
+	} );
 
-	 texture_in.anisotropy = 1;
- 	 material_in = new THREE.MeshLambertMaterial( {
- 		 map: texture_in,	 emissiveIntensity:0
- 	 } );
-	  texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
- 		texture.wrapS = THREE.RepeatWrapping;
- 	  texture.wrapT = THREE.RepeatWrapping;
- 	  texture.repeat.set( 8, 8 );
- 	 } );
+	texture_in.anisotropy = 1;
 
-	texture_inter.anisotropy = 1;
-	 material_inter = new THREE.MeshLambertMaterial( {
-		 map: texture_inter,	 emissiveIntensity:0
-	 } );
-	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
-var instance;
+	material_in = new THREE.MeshLambertMaterial( {
+		map: texture_in,	 emissiveIntensity:0
+	} );
 
 
-inbound_group = new THREE.Group();
+ var instance;
+ inbound_group = new THREE.Group();
   // cycle over the inbound traffic
-	 for (q=page_inbound.length; q <   page_inbound.length; q++) {
-
-	     var target_page = $.grep(page_array, function(v) {
+	for (q=0; q <   page_inbound.length; q++) {
+    var target_page = $.grep(page_array, function(v) {
 		      	return v.page_id ==  page_inbound[q].page_id ;
-	     });
-			 var geometry = new THREE.CylinderGeometry( 5, 5,page_inbound[q].volume, 32,32 );
-			 var cylinder = new THREE.Mesh( geometry, material_in );
-			 cylinder.position.x = target_page[0].x;
-			 cylinder.position.y = target_page[0].y+page_diameter/2;
-			 cylinder.position.z = target_page[0].z+page_diameter/4 ;
-			 instance = cylinder.clone();
-			 inbound_group.add(instance );
+	  });
+
+	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
+		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_inbound[q].volume, 32,32 );
+		var cylinder = new THREE.Mesh( geometry, material_in );
+		cylinder.position.x = target_page[0].x - page_diameter/4;
+		cylinder.position.y = target_page[0].y + page_height;
+		cylinder.position.z = target_page[0].z ;
+		instance = cylinder.clone();
+		inbound_group.add(instance );
 	}
 	scene.add(inbound_group );
 
 
 
 
-function cylinderMesh(pointX, pointY, material) {
-            var direction = new THREE.Vector3().subVectors(pointY, pointX);
-            var orientation = new THREE.Matrix4();
-            orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
-            orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
-                0, 0, 1, 0,
-                0, -1, 0, 0,
-                0, 0, 0, 1));
-            var edgeGeometry = new THREE.CylinderGeometry(2, 2, direction.length(), 8, 1);
-            var edge = new THREE.Mesh(edgeGeometry, material);
-            edge.applyMatrix(orientation);
-            // position based on midpoints - there may be a better solution than this
-            edge.position.x = (pointY.x + pointX.x) / 2;
-            edge.position.y = (pointY.y + pointX.y) / 2;
-            edge.position.z = (pointY.z + pointX.z) / 2;
-            return edge;
-        }
 
 
+texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
+	texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set( 8, 8 );
+ } );
 
-
+texture_inter.anisotropy = 1;
+material_inter = new THREE.MeshLambertMaterial( {
+ map: texture_inter,	 emissiveIntensity:0
+} );
 interpage_group = new THREE.Group();
 
-for (q=interpage_traffic.length; q < interpage_traffic.length; q++) {
+for (q=0; q < interpage_traffic.length; q++) {
 	var src_page = $.grep(page_array, function(v) {
 			 return v.page_id ==  interpage_traffic[q].src ;
 	});
@@ -357,16 +347,21 @@ for (q=interpage_traffic.length; q < interpage_traffic.length; q++) {
 
    var pointX= new THREE.Vector3();
 	 pointX.x= src_page[0].x;
-	 pointX.y = src_page[0].y +interpage_traffic[q].shift;
+	 pointX.y = src_page[0].y -page_height/4;
 	 pointX.z = src_page[0].z;
 
 
  var pointY= new THREE.Vector3();
  pointY.x = dest_page[0].x;
- pointY.y = dest_page[0].y+interpage_traffic[q].shift;
+ pointY.y = dest_page[0].y+page_height/4;
  pointY.z = dest_page[0].z;
 
   console.log("---");
+
+	// smooth my curve over this many points
+
+
+
 
  if (interpage_traffic[q].shift > 0 ) {
 	  var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
@@ -388,16 +383,15 @@ scene.add(	interpage_group );
 
 function render() {
 	controls.update();
-  texture_in.offset.y += texture_in_offset;
+  texture_in.offset.x += texture_in_offset;
 	texture_out = texture_in;
-  texture_inter.offset.y += texture_inter_offset;
-  texture_out.offset.y += texture_out_offset;
+  texture_inter.offset.x += texture_inter_offset;
+  texture_out.offset.x += texture_out_offset;
 	renderer.render( scene, camera );
 }
 
 function animate() {
  requestAnimationFrame( animate );
-
  render();
 }
 
