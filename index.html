@@ -28,13 +28,13 @@
 
 
 var axis_text_size =5;
-var page_height = 20;
-var page_diameter = 8;
+var page_height = 10;
+var page_diameter = 3;
 var speed_multiplier =70;
-var shift_value = 5;
-var axis_text_height = 1;
 
-var texture_in_offset =0.0001;
+var axis_text_height = 1;
+var safe_distance =3;
+var texture_in_offset =0.01;
 var texture_inter_offset =0.01;
 var texture_out_offset =0.01;
 var texture_out;
@@ -106,46 +106,7 @@ function applyVertexColors( geometry, color ) {
  }
 
 
- function cylinderMesh(pointX, pointY, material) {
 
-
-	 var numPoints = 100;
-
-
-
-	 var path = [  pointX,
-	 new THREE.Vector3(pointX.x +50,
-		                 pointX.y ,
-									 pointX.z ),
-		pointY
- ];
-
- var pathBase = new THREE.CatmullRomCurve3(path);
-
-	 var geometry = new THREE.TubeGeometry(pathBase, 20, 2, 8 );
-
-	 var mesh = new THREE.Mesh( geometry, material );
-//scene.add( mesh );
-
-
-
-
- 	var direction = new THREE.Vector3().subVectors(pointY, pointX);
- 	var orientation = new THREE.Matrix4();
- 	orientation.lookAt(pointX, pointY, new THREE.Object3D().up);
- 	orientation.multiply(new THREE.Matrix4().set(1, 0, 0, 0,
- 	    0, 0, 1, 0,
- 	    0, -1, 0, 0,
- 	    0, 0, 0, 1));
- 	var edgeGeometry = new THREE.CylinderGeometry(2, 2, direction.length(), 8, 1);
- 	var edge = new THREE.Mesh(edgeGeometry, material);
- 	edge.applyMatrix(orientation);
- 	// position based on midpoints - there may be a better solution than this
- 	edge.position.x = (pointY.x + pointX.x) / 2;
- 	edge.position.y = (pointY.y + pointX.y) / 2;
- 	edge.position.z = (pointY.z + pointX.z) / 2;
- 	return mesh;
- 	}
 
 
 
@@ -184,23 +145,19 @@ function get_data() {
   interpage_traffic =[];
 	page_inbound =[];
 
-	page_array.push({ page_id: 1, name:"home", x:10,y:10,z:10} );
-	page_array.push({ page_id: 2, name:"about", x:40, y:10,z:10} );
-	page_array.push({ page_id: 3, name:"product", x:70,y:10,z:10} );
-  page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:50} );
+  var units = 10;
+	page_array.push({ page_id: 1, name:"home", x:50,y:10,z:50} );
+	page_array.push({ page_id: 2, name:"about", x:50, y:10,z:10} );
+	page_array.push({ page_id: 3, name:"product", x:10,y:10,z:50} );
+	page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:10} );
+
   page_inbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
 	page_inbound.push({id: 2, page_id: 2,channel: 'organic', volume: 40});
 
-  interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 10, shift: shift_value});
-  interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 10, shift: -1*shift_value});
-
-interpage_traffic.push({id:3, src: 2 ,dest: 3, volume: 5, shift: -1*shift_value});
-interpage_traffic.push({id:4, src: 3 ,dest: 2, volume: 8, shift: shift_value});
-
-interpage_traffic.push({id:5, src: 1 ,dest: 4, volume: 5, shift: -1*shift_value});
-interpage_traffic.push({id:5, src: 4 ,dest: 1, volume: 8, shift: shift_value});
-
-
+  interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 1});
+  interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 3});
+  interpage_traffic.push({id:3, src: 2 ,dest: 3, volume: 3});
+	interpage_traffic.push({id:4, src: 3 ,dest: 2, volume: 3});
 	display();
 }
 
@@ -312,16 +269,13 @@ scene.add(page_group);
 		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_inbound[q].volume, 32,32 );
 		var cylinder = new THREE.Mesh( geometry, material_in );
 		cylinder.position.x = target_page[0].x - page_diameter/4;
-		cylinder.position.y = target_page[0].y + page_height;
+
+		cylinder.position.y = target_page[0].y + page_height+5 ;
 		cylinder.position.z = target_page[0].z ;
 		instance = cylinder.clone();
 		inbound_group.add(instance );
 	}
 	scene.add(inbound_group );
-
-
-
-
 
 
 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
@@ -345,10 +299,10 @@ for (q=0; q < interpage_traffic.length; q++) {
   });
 
 
-   var pointX= new THREE.Vector3();
-	 pointX.x= src_page[0].x;
-	 pointX.y = src_page[0].y -page_height/4;
-	 pointX.z = src_page[0].z;
+ var pointX= new THREE.Vector3();
+ pointX.x= src_page[0].x;
+ pointX.y = src_page[0].y -page_height/4;
+ pointX.z = src_page[0].z;
 
 
  var pointY= new THREE.Vector3();
@@ -359,34 +313,73 @@ for (q=0; q < interpage_traffic.length; q++) {
   console.log("---");
 
 	// smooth my curve over this many points
+	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, interpage_traffic[q].volume );
 
-
-
-
- if (interpage_traffic[q].shift > 0 ) {
-	  var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
-}
-else {
-	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter);
-}
 	instance = cylinder_element.clone();
 	interpage_group.add(instance );
 }
-scene.add(	interpage_group );
+ scene.add(	interpage_group );
 
   animate() ;
 }
 
+function cylinderMesh(point1, point2, material, volume) {
 
+var x_delta, y_delta, z_delta;
+   // point1 is always the source
+  console.log(point1.y );
+	console.log(point2.y );
+
+
+   mid_x = (point1.x  + point2.x  )/2;
+	 mid_y = ( point1.y + point2.y )/2 ;
+	 mid_z = (point1.z  +  point2.z)/2;
+
+   if (point1.x >= point2.x) {
+     z_delta = safe_distance;
+	 }
+	 else {
+     z_delta = -1*safe_distance;
+
+	 }
+
+	 if (point1.z >= point2.z) {
+		 x_delta = safe_distance;
+	}
+	else {
+		 x_delta = -1*safe_distance;
+
+	}
+
+
+
+
+
+
+	var numPoints = 30;
+	var path = [  point1,
+	new THREE.Vector3( mid_x +x_delta ,
+										mid_y,
+									  mid_z ),
+	 point2
+];
+
+	var pathBase = new THREE.CatmullRomCurve3(path);
+
+	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
+	var geometry = new THREE.TubeGeometry(pathBase, 20, volume, 40 );
+	var mesh = new THREE.Mesh( geometry, material );
+  return mesh;
+ }
 
 
 
 function render() {
 	controls.update();
-  texture_in.offset.x += texture_in_offset;
+  texture_in.offset.y += texture_in_offset;
 	texture_out = texture_in;
   texture_inter.offset.x += texture_inter_offset;
-  texture_out.offset.x += texture_out_offset;
+
 	renderer.render( scene, camera );
 }
 
