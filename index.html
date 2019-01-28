@@ -81,10 +81,7 @@ function getObjects(obj, key, val) {
     return objects;
 }
 
-var jqxhr = $.getJSON( "migration.json", function(data) {
-   migration = data;
-});
-
+// get the state information (population, lat, long)
 var jqxhr = $.getJSON( "capitals.json", function(data) {
   state_locations = data;
 	var population = $.getJSON( "population.json", function(data) {
@@ -95,15 +92,26 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			temp[0].long]);
 		}
 		console.log(state_data);
+		var jqxhr = $.getJSON( "migration.json", function(data) {
+			 migration = data;
+			console.log(migration);
+			 display();
+		});
 	});
 });
 
 
-
-
+///the flows
 
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
+
+
+function y_from_pop(population)  {
+	return  population/1000000
+}
+
+
 
 function onDocumentKeyDown(event) {
 		var keyCode = event.which;
@@ -167,38 +175,7 @@ function applyVertexColors( geometry, color ) {
 
 */
 
-get_data();
 
-function get_data() {
-
-  page_array = [];
-  interpage_traffic =[];
-	page_inbound =[];
-	page_outbound =[];
-
-  var units = 10;
-	page_array.push({ page_id: 1, name:"home", x:50,y:10,z:50, views:5} );
-	page_array.push({ page_id: 2, name:"about", x:50, y:10,z:10, views:8} );
-	page_array.push({ page_id: 3, name:"product", x:10,y:10,z:50, views:5} );
-	page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:10, views:15 } );
-
-  page_inbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
-	page_inbound.push({id: 2, page_id: 2,channel: 'organic', volume: 40});
-
-	page_outbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
-	page_outbound.push({id: 2, page_id: 2,channel: 'organic', volume: 10});
-	page_outbound.push({id: 3, page_id: 3,channel: 'organic', volume: 4});
-	page_outbound.push({id: 4, page_id: 4,channel: 'organic', volume: 2});
-
-  interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 1});
-  interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 3});
-  interpage_traffic.push({id:3, src: 2 ,dest: 3, volume: 3});
-	interpage_traffic.push({id:4, src: 3 ,dest: 2, volume: 3});
-  interpage_traffic.push({id:5, src: 1 ,dest: 4, volume: 3});
-  interpage_traffic.push({id:6, src: 2 ,dest: 4, volume: 3});
-	interpage_traffic.push({id:7, src: 3 ,dest: 4, volume: 3});
-	display();
-}
 
 
 
@@ -251,7 +228,7 @@ function display() {
 //
 // Create the Pages
 //
- var num_rows = page_array.length;
+ var num_rows = state_data.length;
  page_group = new THREE.Group();
 
 
@@ -268,140 +245,34 @@ function display() {
 	 map: texture_page,	 emissiveIntensity:0
  } );
 
-
-
- for (var k=0; k<page_array.length; k++) {
-	var geometry = new THREE.CylinderBufferGeometry( page_array[k].views, page_array[k].views,  page_height, 32 );
+  console.log(state_data);
+ for (var k=0; k<state_data.length; k++) {
+  var radius = 33;//state_data[k].population/100000;
+	page_height = radius*3;
+	var y_from_size = y_from_pop(state_data[k][1]);
+	var x_from_lat = state_data[k][2]*10;
+	var z_from_long = Math.abs(parseInt(state_data[k][3]*10));
+  //console.log(state_data[k]);
+	var geometry = new THREE.CylinderBufferGeometry(radius, radius,  page_height, 32 );
 
 	var cylinder = new THREE.Mesh( geometry, material_page );
 	var edges = new THREE.EdgesGeometry( geometry );
 	var line = new THREE.Line( edges, new THREE.LineBasicMaterial( { color: 0x818281 } ) );
 
-	cylinder.position.x = page_array[k].x;
-	cylinder.position.y = page_array[k].y;
-	cylinder.position.z = page_array[k].z;
+	cylinder.position.x = x_from_lat;
+	cylinder.position.y = y_from_size;
+	cylinder.position.z = z_from_long;
 
-	line.position.x = page_array[k].x;
-	line.position.y = page_array[k].y;
-	line.position.z = page_array[k].z;
+	line.position.x = x_from_lat;;
+	line.position.y = y_from_size;
+	line.position.z = z_from_long;
 
 	var instance = cylinder.clone();
 	page_group.add( instance );
 	var line_instance = line.clone();
-	//page_group.add( line_instance );
+	page_group.add( line_instance );
 }
 scene.add(page_group);
-
-
-
-	//
-	//  Inbound Traffic Cyclinders
-	//
-
-
-	texture_in = textureLoader.load( 'green_arrow.png', function ( texture ) {
-		texture.wrapS = THREE.RepeatWrapping;
-	  texture.wrapT = THREE.RepeatWrapping;
-	  texture.repeat.set( 4, 4 );
-	} );
-
-	texture_in.anisotropy = 1;
-
-	material_in = new THREE.MeshLambertMaterial( {
-		map: texture_in,	 emissiveIntensity:0
-	} );
-
-
- var instance;
- inbound_group = new THREE.Group();
-  // cycle over the inbound traffic
-	for (q=0; q <   page_inbound.length; q++) {
-    var target_page = $.grep(page_array, function(v) {
-		      	return v.page_id ==  page_inbound[q].page_id ;
-	  });
-
-	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
-		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_inbound[q].volume, 32,32 );
-		var cylinder = new THREE.Mesh( geometry, material_in );
-		cylinder.position.x = target_page[0].x - page_diameter/4;
-		cylinder.position.y = target_page[0].y + page_height ;
-		cylinder.position.z = target_page[0].z ;
-		instance = cylinder.clone();
-		inbound_group.add(instance );
-	}
-	scene.add(inbound_group );
-
-
-
-// labels
-
-var fontLoader = new THREE.FontLoader();
- label_group = new THREE.Group();
-	for (q=0; q <   page_inbound.length; q++) {
-		var target_page = $.grep(page_array, function(v) {
-						return v.page_id ==  page_inbound[q].page_id ;
-		});
-
-     x_axis_selected =target_page[0].name;
-	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
-		var  X_axis_label = new THREE.TextGeometry(x_axis_selected, {
-		 size: axis_text_size,
-		 height: axis_text_height,
-		 curveSegments: 1,
-		 font: tex,
-		});
-
-		var  X_textMaterial = new THREE.MeshBasicMaterial({ color: x_color});
-
-		X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
-		var position = axis.geometry.attributes.position;
-		X_text.position.x  =  target_page[0].x;
-		X_text.position.y = target_page[0].y+50;
-		X_text.position.z = target_page[0].z;
-    X_textc = X_text.clone();
-
-		//label_group.add(X_textc);
-		//scene.add(label_group );
-});
-
-}
-
-
-// Outbound
-
-
-	texture_out = textureLoader.load( 'red_arrow.png', function ( texture ) {
-		texture.wrapS = THREE.RepeatWrapping;
-	  texture.wrapT = THREE.RepeatWrapping;
-	  texture.repeat.set( 4, 4 );
-	} );
-
-	texture_out.anisotropy = 1;
-
-	material_out = new THREE.MeshLambertMaterial( {
-		map: texture_out,	 emissiveIntensity:0
-	} );
-
-
- var instance;
- outbound_group = new THREE.Group();
-  // cycle over the inbound traffic
-	for (q=0; q <   page_outbound.length; q++) {
-    var target_page = $.grep(page_array, function(v) {
-		      	return v.page_id ==  page_outbound[q].page_id ;
-	  });
-
-	 //CylinderGeometry(radiusTop , radiusBottom  height , radialSegments , heightSegments , openEnded , thetaStart , thetaLength)
-		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_outbound[q].volume, 32,32 );
-		var cylinder = new THREE.Mesh( geometry, material_out );
-		cylinder.position.x = target_page[0].x + page_diameter/4;
-		cylinder.position.y = target_page[0].y + page_height /2;
-		cylinder.position.z = target_page[0].z  + page_diameter/4 ;
-		instance = cylinder.clone();
-		outbound_group.add(instance );
-	}
-	scene.add(outbound_group );
-
 
 
 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
@@ -416,28 +287,29 @@ material_inter = new THREE.MeshLambertMaterial( {
 } );
 interpage_group = new THREE.Group();
 
-for (q=0; q < interpage_traffic.length; q++) {
-	var src_page = $.grep(page_array, function(v) {
-			 return v.page_id ==  interpage_traffic[q].src ;
+for (q=0; q < 1; q++) {  //migration.length
+	var src_page = $.grep(state_data, function(v) {
+			 return v[0] ==  migration[q].Origin ;
 	});
-	var dest_page = $.grep(page_array, function(v) {
-			 return v.page_id ==  interpage_traffic[q].dest ;
+	var dest_page = $.grep(state_data, function(v) {
+			 return v[0] ==  migration[q].Destination ;
   });
+	var page_height = 20;
 
 
  var pointX= new THREE.Vector3();
- pointX.x= src_page[0].x;
- pointX.y = src_page[0].y -page_height/4;
- pointX.z = src_page[0].z;
+ pointX.x= parseInt(src_page[0][2]);
+ pointX.y = parseInt(y_from_pop(src_page[0][1])  + page_height/4);
+ pointX.z = parseInt(src_page[0][3]);
 
 
  var pointY= new THREE.Vector3();
- pointY.x = dest_page[0].x;
- pointY.y = dest_page[0].y+page_height/4;
- pointY.z = dest_page[0].z;
+ pointY.x = parseInt(dest_page[0][2]);
+ pointY.y = parseInt(y_from_pop(dest_page[0][1])  - page_height/4);
+ pointY.z = parseInt(dest_page[0][3]);
 
 	// smooth my curve over this many points
-	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, interpage_traffic[q].volume );
+	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, migration[0].Total/1000);
 
 	instance = cylinder_element.clone();
 	interpage_group.add(instance );
@@ -447,7 +319,8 @@ for (q=0; q < interpage_traffic.length; q++) {
 }
 
 function cylinderMesh( point2, point1,material, volume) {
-
+console.log(point2);
+console.log(point1);
 var x_delta, y_delta, z_delta;
    // point1 is always the source
 
@@ -488,7 +361,7 @@ var x_delta, y_delta, z_delta;
 	var pathBase = new THREE.CatmullRomCurve3(path);
 
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
-	var geometry = new THREE.TubeGeometry(pathBase, 20, volume, 40 );
+	var geometry = new THREE.TubeGeometry(pathBase, 20, 20, 40 );
 	var mesh = new THREE.Mesh( geometry, material );
   return mesh;
  }
@@ -497,8 +370,8 @@ var x_delta, y_delta, z_delta;
 
 function render() {
 	controls.update();
-  texture_in.offset.y += texture_in_offset;
-	texture_out.offset.y -= texture_in_offset;
+//  texture_in.offset.y += texture_in_offset;
+//	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
 
 	renderer.render( scene, camera );
