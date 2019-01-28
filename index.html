@@ -7,31 +7,23 @@
 		<script src="three.js"></script>
 		<link rel="shortcut icon" href="favicon.ico">
 		<script src="TrackballControls.js"></script>
+
 		<script src="ParametricGeometries.js"></script>
 		<script src="BufferGeometryUtils.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdn.rawgit.com/Gmousse/dataframe-js/master/dist/dataframe.js"></script>
 		<link rel='stylesheet' href='styles.css'/>
-
 	</head>
 	<body>
 		<body>
-
-
-
-
-			  <div  id="main_area">
-
+     <div  id="main_area">
   </div>
 <script>
-
-
 
 var axis_text_size =5;
 var page_height = 15;
 var page_diameter = 5;
 var speed_multiplier =70;
-
 var axis_text_height = 1;
 var safe_distance =3;
 var texture_in_offset =0.01;
@@ -72,6 +64,44 @@ var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 var texture_in,   texture_inter;
 
 //  ---- minor functions
+var population, state_locations, migration;
+var state_data = [];
+
+//used to parse json objects
+function getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getObjects(obj[i], key, val));
+        } else if (i == key && obj[key] == val) {
+            objects.push(obj);
+        }
+    }
+    return objects;
+}
+
+var jqxhr = $.getJSON( "migration.json", function(data) {
+   migration = data;
+});
+
+var jqxhr = $.getJSON( "capitals.json", function(data) {
+  state_locations = data;
+	var population = $.getJSON( "population.json", function(data) {
+	  population = data;
+    for (j=0; j < population.length ; j++)  {
+      var temp = getObjects(state_locations, 'name', population[j].state);
+			state_data.push ([population[j].state, population[j].population, temp[0].lat,
+			temp[0].long]);
+		}
+		console.log(state_data);
+	});
+});
+
+
+
+
+
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
 
@@ -144,29 +174,29 @@ function get_data() {
   page_array = [];
   interpage_traffic =[];
 	page_inbound =[];
-		page_outbound =[];
+	page_outbound =[];
 
   var units = 10;
-	page_array.push({ page_id: 1, name:"home", x:50,y:10,z:50} );
-	page_array.push({ page_id: 2, name:"about", x:50, y:10,z:10} );
-	page_array.push({ page_id: 3, name:"product", x:10,y:10,z:50} );
-	page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:10} );
+	page_array.push({ page_id: 1, name:"home", x:50,y:10,z:50, views:5} );
+	page_array.push({ page_id: 2, name:"about", x:50, y:10,z:10, views:8} );
+	page_array.push({ page_id: 3, name:"product", x:10,y:10,z:50, views:5} );
+	page_array.push({ page_id: 4, name:"checkout", x:10,y:10,z:10, views:15 } );
 
   page_inbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
 	page_inbound.push({id: 2, page_id: 2,channel: 'organic', volume: 40});
 
-	page_outbound.push({id: 2, page_id: 2,channel: 'organic', volume: 20});
-page_outbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
+	page_outbound.push({id: 1, page_id: 1,channel: 'organic', volume: 20});
+	page_outbound.push({id: 2, page_id: 2,channel: 'organic', volume: 10});
+	page_outbound.push({id: 3, page_id: 3,channel: 'organic', volume: 4});
+	page_outbound.push({id: 4, page_id: 4,channel: 'organic', volume: 2});
 
   interpage_traffic.push({id:1, src: 1 ,dest: 2, volume: 1});
   interpage_traffic.push({id:2, src: 2 ,dest: 1, volume: 3});
   interpage_traffic.push({id:3, src: 2 ,dest: 3, volume: 3});
 	interpage_traffic.push({id:4, src: 3 ,dest: 2, volume: 3});
-		interpage_traffic.push({id:5, src: 1 ,dest: 4, volume: 3});
-			interpage_traffic.push({id:6, src: 2 ,dest: 4, volume: 3});
-					interpage_traffic.push({id:7, src: 3 ,dest: 4, volume: 3});
-
-
+  interpage_traffic.push({id:5, src: 1 ,dest: 4, volume: 3});
+  interpage_traffic.push({id:6, src: 2 ,dest: 4, volume: 3});
+	interpage_traffic.push({id:7, src: 3 ,dest: 4, volume: 3});
 	display();
 }
 
@@ -224,10 +254,26 @@ function display() {
  var num_rows = page_array.length;
  page_group = new THREE.Group();
 
+
+ const textureLoader = new THREE.TextureLoader();
+ texture_page = textureLoader.load( 'brick.png', function ( texture ) {
+	 texture.wrapS = THREE.RepeatWrapping;
+	 texture.wrapT = THREE.RepeatWrapping;
+	 texture.repeat.set( 4, 4 );
+ } );
+
+ texture_page.anisotropy = 1;
+
+ material_page = new THREE.MeshLambertMaterial( {
+	 map: texture_page,	 emissiveIntensity:0
+ } );
+
+
+
  for (var k=0; k<page_array.length; k++) {
-	var geometry = new THREE.CylinderBufferGeometry( page_diameter, page_diameter,  page_height, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0x67A9C8} );
-	var cylinder = new THREE.Mesh( geometry, material );
+	var geometry = new THREE.CylinderBufferGeometry( page_array[k].views, page_array[k].views,  page_height, 32 );
+
+	var cylinder = new THREE.Mesh( geometry, material_page );
 	var edges = new THREE.EdgesGeometry( geometry );
 	var line = new THREE.Line( edges, new THREE.LineBasicMaterial( { color: 0x818281 } ) );
 
@@ -242,7 +288,7 @@ function display() {
 	var instance = cylinder.clone();
 	page_group.add( instance );
 	var line_instance = line.clone();
-	page_group.add( line_instance );
+	//page_group.add( line_instance );
 }
 scene.add(page_group);
 
@@ -252,7 +298,7 @@ scene.add(page_group);
 	//  Inbound Traffic Cyclinders
 	//
 
-	const textureLoader = new THREE.TextureLoader();
+
 	texture_in = textureLoader.load( 'green_arrow.png', function ( texture ) {
 		texture.wrapS = THREE.RepeatWrapping;
 	  texture.wrapT = THREE.RepeatWrapping;
@@ -286,6 +332,41 @@ scene.add(page_group);
 	scene.add(inbound_group );
 
 
+
+// labels
+
+var fontLoader = new THREE.FontLoader();
+ label_group = new THREE.Group();
+	for (q=0; q <   page_inbound.length; q++) {
+		var target_page = $.grep(page_array, function(v) {
+						return v.page_id ==  page_inbound[q].page_id ;
+		});
+
+     x_axis_selected =target_page[0].name;
+	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
+		var  X_axis_label = new THREE.TextGeometry(x_axis_selected, {
+		 size: axis_text_size,
+		 height: axis_text_height,
+		 curveSegments: 1,
+		 font: tex,
+		});
+
+		var  X_textMaterial = new THREE.MeshBasicMaterial({ color: x_color});
+
+		X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
+		var position = axis.geometry.attributes.position;
+		X_text.position.x  =  target_page[0].x;
+		X_text.position.y = target_page[0].y+50;
+		X_text.position.z = target_page[0].z;
+    X_textc = X_text.clone();
+
+		//label_group.add(X_textc);
+		//scene.add(label_group );
+});
+
+}
+
+
 // Outbound
 
 
@@ -314,7 +395,7 @@ scene.add(page_group);
 		var geometry = new THREE.CylinderGeometry( page_diameter/4, page_diameter/4,page_outbound[q].volume, 32,32 );
 		var cylinder = new THREE.Mesh( geometry, material_out );
 		cylinder.position.x = target_page[0].x + page_diameter/4;
-		cylinder.position.y = target_page[0].y + page_height ;
+		cylinder.position.y = target_page[0].y + page_height /2;
 		cylinder.position.z = target_page[0].z  + page_diameter/4 ;
 		instance = cylinder.clone();
 		outbound_group.add(instance );
@@ -355,8 +436,6 @@ for (q=0; q < interpage_traffic.length; q++) {
  pointY.y = dest_page[0].y+page_height/4;
  pointY.z = dest_page[0].z;
 
-  console.log("---");
-
 	// smooth my curve over this many points
 	var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, interpage_traffic[q].volume );
 
@@ -364,7 +443,6 @@ for (q=0; q < interpage_traffic.length; q++) {
 	interpage_group.add(instance );
 }
  scene.add(	interpage_group );
-
   animate() ;
 }
 
@@ -372,13 +450,11 @@ function cylinderMesh( point2, point1,material, volume) {
 
 var x_delta, y_delta, z_delta;
    // point1 is always the source
-  console.log(point1.y );
-	console.log(point2.y );
 
    distance = Math.sqrt(
-		      Math.pow((point2.x -   point1.x ),2)  +
+		Math.pow((point2.x -   point1.x ),2)  +
     Math.pow((point2.y -   point1.y),2)  +
-		 Math.pow((point2.z -   point1.z ),2)   );
+		Math.pow((point2.z -   point1.z ),2)   );
 
    mid_x = (point1.x  + point2.x  )/2;
 	 mid_y = ( point1.y + point2.y )/2 ;
@@ -399,10 +475,6 @@ var x_delta, y_delta, z_delta;
 		 x_delta = safe_distance;
 
 	}
-
-
-
-
 
 
 	var numPoints = 30;
