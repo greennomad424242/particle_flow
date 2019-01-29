@@ -23,6 +23,7 @@
 
 
 var x_color = '#cc0000';
+var text_color = '#EC7523';
 var y_color  = '#009900' ;
 var z_color  = '#0000e6';
 var rotSpeed =0;
@@ -40,7 +41,7 @@ var height = window.innerHeight;
 var axis_length = 100;
 var X_text,Y_text, Z_text;
 var picked_var;
-var container, camera, controls, scene, renderer,  quaternion,
+var container, camera, controls, scene, renderer,
  num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
 var highlightBox, orbit_default;
 var mouse = new THREE.Vector2();
@@ -53,17 +54,17 @@ var state_data = [];
 
 //  Configuration options
 
-var camera_x = -10;
-var camera_y = 120;
-var camera_z = 0;
+var camera_x = 122;
+var camera_y =83;
+var camera_z = 52;
 
 var height_to_radius_ratio = 3;
 
-var axis_text_size =5;
+var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
 var speed_multiplier =70;
-var axis_text_height = 1;
+var text_height = .1;
 var safe_distance =3;
 var texture_in_offset =0.01;
 var texture_inter_offset =0.01;
@@ -71,7 +72,7 @@ var texture_out_offset =0.01;
 var texture_out;
 
 var min_x=0,min_y=0, min_z =0;
-var max_x=300, max_y=300, max_z=300;
+var max_x=500, max_y=500, max_z=500;
 
 var tube_width_multiplier;
 var volume_multiplier = 1/25000;
@@ -79,7 +80,7 @@ var volume_multiplier = 1/25000;
 var min_flow = 1000000000;
 var max_flow = 0;
 var max_width = 4;
-var min_width = 1;
+var min_width = 0.3;
 
 var min_lat =1000;
 var max_lat = 0;
@@ -87,7 +88,7 @@ var min_long =1000;
 var max_long =0;
 var min_pop = 100000000000;
 var max_pop = 0;
-
+	 text_group = new THREE.Group();
 //
 //   end variables
 //
@@ -105,7 +106,8 @@ function getObjects(obj, key, val) {
     }
     return objects;
 }
-
+var matrix = new THREE.Matrix4();
+var quaternion = new THREE.Quaternion();
 //
 // import data
 //
@@ -161,11 +163,43 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 
 			 tube_width_multiplier = (max_width - min_width) / (max_flow - min_flow);
 			 display(add_interpages);
+
+       for (m = 0; m< state_data.length; m++) {
+				   text_display(m);
+			 }
+			 scene.add(text_group);
+
 		});
 	});
 });
 
+function text_display (q) {
 
+
+var fontLoader = new THREE.FontLoader();
+	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
+		var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
+		 size: text_size,
+		 height: text_height,
+		 curveSegments: 1,
+		 font: tex,
+		});
+
+
+
+
+   	var  X_textMaterial = new THREE.MeshBasicMaterial({ color: text_color});
+	  X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
+		var position = axis.geometry.attributes.position;
+    	X_text.position.x  =  x_from_lat(state_data[q][2]);
+			X_text.position.y  =  y_from_pop(state_data[q][1]) + 5+ state_data[q][4]/2;
+			X_text.position.z  =  z_from_long(state_data[q][3]) ;
+		 var instance = X_text.clone();
+			 text_group.add(instance);
+
+});
+
+}
 function display(callback) {
 	//initial setup
  container = document.getElementById("main_area" );
@@ -223,7 +257,7 @@ function display(callback) {
  texture_page = textureLoader.load( 'brick.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 	 texture.wrapT = THREE.RepeatWrapping;
-	 texture.repeat.set( 4, 4 );
+	 texture.repeat.set( 2, 2);
  } );
 
  texture_page.anisotropy = 1;
@@ -235,14 +269,13 @@ function display(callback) {
  for (var k=0; k<state_data.length; k++) {
 
 	var volume = state_data[k][1]*volume_multiplier;
-
   var radius_state = Math.pow(volume/ (3.14159*height_to_radius_ratio),1/3);
 	//console.log(state_data[k][0],volume, radius_state);
 	var x_val = x_from_lat(state_data[k][2]);
 	var y_val= y_from_pop(state_data[k][1]);
 	var z_val =z_from_long(state_data[k][3]);
 
-  page_height = state_data[k][4] = height_to_radius_ratio*radius_state;
+  page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
   //console.log(state_data[k]);
 	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
 
@@ -270,7 +303,7 @@ function display(callback) {
  texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
 	texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set( 8, 8 );
+  texture.repeat.set( 8,8);
  } );
 
 	texture_inter.anisotropy = 1;
@@ -307,9 +340,6 @@ function display(callback) {
 
 		 return parseInt(val)
 	  }
- console.log();
-
-
    var tube_radius = tubular (migration[q].Total);
 		// create the tube using this special function (that gives it a curve)
 	 var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, tube_radius );
@@ -320,8 +350,9 @@ function display(callback) {
 }
 
 function add_interpages() {
-scene.add(interpage_group );
-animate() ;
+    scene.add(interpage_group );
+    animate() ;
+    console.log(state_data);
 }
 
 
@@ -367,7 +398,7 @@ function cylinderMesh( point2, point1,material,tube_radius) {
 
 
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
-	var geometry = new THREE.TubeGeometry(pathBase, tube_radius, tube_radius, 8);
+	var geometry = new THREE.TubeGeometry(pathBase, 64, tube_radius, 4);
 	var mesh = new THREE.Mesh( geometry, material );
   return mesh;
 
@@ -409,13 +440,30 @@ function render() {
   //  texture_in.offset.y += texture_in_offset;
   //	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
+		// X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
+
 }
 
 function animate() {
  requestAnimationFrame( animate );
- controls.update();
+  //console.log(camera.quaternion);
  render();
+
+
+ text_group.children.forEach(
+     function(pChild){
+          pChild.quaternion.copy(camera.quaternion);
+     }
+ );
+
+ //X_text.applyQuaternion(camera.quaternion );
+ //console.log(X_text.quaternion);
+ //X_text.rotation.z = 0;
+	 controls.update();
+  console.log(camera.position.x, camera.position.y, camera.position.z);
+ //console.log(X_text);
+
 }
 
 </script>
