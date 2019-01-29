@@ -52,11 +52,14 @@ var population, state_locations, migration;
 var state_data = [];
 
 
+//TO DO:
+//   - fix default camera angle
+//   - clean up the variables around scaling the x,y,z, and flow
+//
+
 //  Configuration options
 
-var camera_x = 122;
-var camera_y =83;
-var camera_z = 52;
+
 
 var height_to_radius_ratio = 3;
 
@@ -212,9 +215,18 @@ function display(callback) {
  //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
  camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
- camera.position.x = camera_x;
- camera.position.y = camera_y;
- camera.position.z = camera_z;
+
+
+
+ camera.position.x = 80;
+ camera.position.y = 80;
+ camera.position.z = -4;
+
+ // Place camera on x axis
+
+ camera.up = new THREE.Vector3(0,-1,0);
+ camera.lookAt(new THREE.Vector3(0,0,0));
+
 
  //
  // Controls
@@ -462,6 +474,9 @@ function animate() {
  //X_text.rotation.z = 0;
 	 controls.update();
   console.log(camera.position.x, camera.position.y, camera.position.z);
+	var vector = new THREE.Vector3( 0, 0, -1 );
+	vector.applyQuaternion( camera.quaternion );
+console.log("vec: "+ vector.x + vector.y +vector.z);
  //console.log(X_text);
 
 }
