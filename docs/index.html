@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Interactive Cubes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="three.js"></script>
+		<link rel="shortcut icon" href="favicon.ico">
+		<script src="TrackballControls.js"></script>
+
+		<script src="ParametricGeometries.js"></script>
+		<script src="BufferGeometryUtils.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://cdn.rawgit.com/Gmousse/dataframe-js/master/dist/dataframe.js"></script>
+		<link rel='stylesheet' href='styles.css'/>
+	</head>
+	<body>
+		<body>
+     <div  id="main_area">
+  </div>
+<script>
+
+
+
+var x_color = '#cc0000';
+var text_color = '#EC7523';
+var y_color  = '#009900' ;
+var z_color  = '#0000e6';
+var rotSpeed =0;
+var opacity_value = 1;
+var rotateSpeed =2;
+var zoomSpeed=4;
+var panSpeed=2;
+var angle = 1;
+
+var delta =  0.005;
+var pathBase, path;
+var picked_length = 0;
+var width = window.innerWidth;
+var height = window.innerHeight;
+var axis_length = 100;
+var X_text,Y_text, Z_text;
+var picked_var;
+var container, camera, controls, scene, renderer,
+ num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
+var highlightBox, orbit_default;
+var mouse = new THREE.Vector2();
+var DataFrame = dfjs.DataFrame;
+var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
+var texture_in, texture_inter;
+var population, state_locations, migration;
+var state_data = [];
+
+
+//  Configuration options
+
+var camera_x = 122;
+var camera_y =83;
+var camera_z = 52;
+
+var height_to_radius_ratio = 3;
+
+var text_size =2;
+var page_height = 15;
+var page_diameter = 5;
+var speed_multiplier =70;
+var text_height = .1;
+var safe_distance =3;
+var texture_in_offset =0.01;
+var texture_inter_offset =0.01;
+var texture_out_offset =0.01;
+var texture_out;
+
+var min_x=0,min_y=0, min_z =0;
+var max_x=500, max_y=500, max_z=500;
+
+var tube_width_multiplier;
+var volume_multiplier = 1/25000;
+
+var min_flow = 1000000000;
+var max_flow = 0;
+var max_width = 4;
+var min_width = 0.3;
+
+var min_lat =1000;
+var max_lat = 0;
+var min_long =1000;
+var max_long =0;
+var min_pop = 100000000000;
+var max_pop = 0;
+	 text_group = new THREE.Group();
+//
+//   end variables
+//
+
+//used to parse json objects
+function getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getObjects(obj[i], key, val));
+        } else if (i == key && obj[key] == val) {
+            objects.push(obj);
+        }
+    }
+    return objects;
+}
+var matrix = new THREE.Matrix4();
+var quaternion = new THREE.Quaternion();
+//
+// import data
+//
+
+// get the state information (population, lat, long)
+var jqxhr = $.getJSON( "capitals.json", function(data) {
+  state_locations = data;
+	var population = $.getJSON( "population.json", function(data) {
+	  population = data;
+    for (j=0; j < population.length ; j++)  {
+			var state_name = population[j].state;
+			var temp = getObjects(state_locations, 'name', state_name );
+
+      var lat = Math.abs(parseFloat(temp[0].lat));
+			var long = Math.abs(parseFloat(temp[0].long));
+			var pop = population[j].population;
+
+			 // find the minimum values to allow shifting later on
+      if (pop > max_pop)  {
+			  max_pop = pop;
+      }
+		  if (min_pop > pop ) {
+				 min_pop = pop;
+			}
+
+      if (lat < min_lat ) {
+        min_lat = lat;
+			}
+			if (lat > max_lat ) {
+				max_lat = lat;
+			}
+			if (long < min_long) {
+        min_long = long;
+			}
+
+			if (long > max_long) {
+        max_long = long;
+			}
+			state_data.push ([state_name ,pop, lat, long]);
+		}
+
+		var jqxhr = $.getJSON( "migration.json", function(data) {
+			 migration = data;
+
+	      for (z =0; z<migration.length; z++) {
+	        if (migration[z].Total < min_flow)   {
+						   min_flow =migration[z].Total;
+				  }
+			    if (migration[z].Total > max_flow)   {
+	 					   max_flow =migration[z].Total;
+	 			  }
+	      }
+
+			 tube_width_multiplier = (max_width - min_width) / (max_flow - min_flow);
+			 display(add_interpages);
+
+       for (m = 0; m< state_data.length; m++) {
+				   text_display(m);
+			 }
+			 scene.add(text_group);
+
+		});
+	});
+});
+
+function text_display (q) {
+
+
+var fontLoader = new THREE.FontLoader();
+	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
+		var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
+		 size: text_size,
+		 height: text_height,
+		 curveSegments: 1,
+		 font: tex,
+		});
+
+
+
+
+   	var  X_textMaterial = new THREE.MeshBasicMaterial({ color: text_color});
+	  X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
+		var position = axis.geometry.attributes.position;
+    	X_text.position.x  =  x_from_lat(state_data[q][2]);
+			X_text.position.y  =  y_from_pop(state_data[q][1]) + 5+ state_data[q][4]/2;
+			X_text.position.z  =  z_from_long(state_data[q][3]) ;
+		 var instance = X_text.clone();
+			 text_group.add(instance);
+
+});
+
+}
+function display(callback) {
+	//initial setup
+ container = document.getElementById("main_area" );
+ renderer = new THREE.WebGLRenderer( { antialias: true } );
+ renderer.setPixelRatio( window.devicePixelRatio );
+ renderer.setSize( width, height );
+ container.appendChild( renderer.domElement );
+
+
+ //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
+
+ camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+ camera.position.x = camera_x;
+ camera.position.y = camera_y;
+ camera.position.z = camera_z;
+
+ //
+ // Controls
+ //
+ controls = new THREE.TrackballControls( camera, renderer.domElement );
+ controls.rotateSpeed = 3.0;
+ controls.zoomSpeed = 6.4;
+ controls.panSpeed = 2.8;
+ controls.noZoom = false;
+ controls.noPan = false;
+ controls.staticMoving = true;
+ controls.dynamicDampingFactor = 0.2;
+ scene = new THREE.Scene();
+
+
+ axis = new THREE.AxesHelper(axis_length);
+ scene.add(axis);
+
+	//Lights
+
+ scene.background = new THREE.Color( 0x000000 );
+ pickingScene = new THREE.Scene();
+ pickingTexture = new THREE.WebGLRenderTarget( 1, 1 );
+ scene.add( new THREE.AmbientLight( 0x555555 ) );
+ var light = new THREE.SpotLight( 0xffffff, 1.5 );
+ light.position.set( 220, 100, 200 );
+ //scene.add( light );
+
+ var light2 = new THREE.AmbientLight( 0x404040 ); // soft white light
+ scene.add( light2 );
+
+ //
+ // Create the Pages
+ //
+
+ var num_rows = state_data.length;
+ page_group = new THREE.Group();
+
+ const textureLoader = new THREE.TextureLoader();
+ texture_page = textureLoader.load( 'brick.png', function ( texture ) {
+	 texture.wrapS = THREE.RepeatWrapping;
+	 texture.wrapT = THREE.RepeatWrapping;
+	 texture.repeat.set( 2, 2);
+ } );
+
+ texture_page.anisotropy = 1;
+ material_page = new THREE.MeshLambertMaterial( {
+	 map: texture_page,	 emissiveIntensity:0
+ } );
+
+ // create the pages
+ for (var k=0; k<state_data.length; k++) {
+
+	var volume = state_data[k][1]*volume_multiplier;
+  var radius_state = Math.pow(volume/ (3.14159*height_to_radius_ratio),1/3);
+	//console.log(state_data[k][0],volume, radius_state);
+	var x_val = x_from_lat(state_data[k][2]);
+	var y_val= y_from_pop(state_data[k][1]);
+	var z_val =z_from_long(state_data[k][3]);
+
+  page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
+  //console.log(state_data[k]);
+	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
+
+	var cylinder = new THREE.Mesh( geometry, material_page );
+	var edges = new THREE.EdgesGeometry( geometry );
+	var line = new THREE.Line( edges, new THREE.LineBasicMaterial( { color: 0x818281 } ) );
+
+	cylinder.position.x = x_val;
+	cylinder.position.y = y_val;
+	cylinder.position.z = z_val;
+
+	line.position.x = x_val;
+	line.position.y = y_val;
+	line.position.z = z_val;
+
+	var instance = cylinder.clone();
+	page_group.add( instance );
+	var line_instance = line.clone();
+	page_group.add( line_instance );
+ }
+ scene.add(page_group);
+
+// tube materials
+
+ texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
+	texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set( 8,8);
+ } );
+
+	texture_inter.anisotropy = 1;
+	material_inter = new THREE.MeshLambertMaterial( {
+	map: texture_inter,	 emissiveIntensity:0 } );
+
+	interpage_group = new THREE.Group();
+
+  // Create each tube
+	for (q=0; q < 80; q++) {  //migration.length
+	//	console.log(migration[q]);
+		var src_page = $.grep(state_data, function(v) {
+				 return v[0] ==  migration[q].Origin ;
+		});
+		var dest_page = $.grep(state_data, function(v) {
+				 return v[0] ==  migration[q].Destination ;
+	  });
+
+   //starting point of the tube
+	 var pointX= new THREE.Vector3();
+	 pointX.x= x_from_lat(src_page[0][2]);
+	 pointX.y = y_from_pop(src_page[0][1]) - src_page[0][4]/4;
+	 pointX.z = z_from_long(src_page[0][3]);
+
+   // ending point of the tube
+	 var pointY= new THREE.Vector3();
+	 pointY.x = x_from_lat(dest_page[0][2]);
+	 pointY.y =  y_from_pop(dest_page[0][1]) + dest_page[0][4]/4 ;
+	 pointY.z = z_from_long(dest_page[0][3]);
+
+   function tubular(flow) {
+    var val = (flow - min_flow) * tube_width_multiplier + min_width;
+
+
+		 return parseInt(val)
+	  }
+   var tube_radius = tubular (migration[q].Total);
+		// create the tube using this special function (that gives it a curve)
+	 var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, tube_radius );
+	 instance = cylinder_element.clone();
+ 	 interpage_group.add(instance );
+	}
+ callback();
+}
+
+function add_interpages() {
+    scene.add(interpage_group );
+    animate() ;
+    console.log(state_data);
+}
+
+
+// this creates the curving tubes
+function cylinderMesh( point2, point1,material,tube_radius) {
+  var x_delta, y_delta, z_delta;
+   // point1 is always the source
+
+  distance = Math.sqrt(
+		Math.pow((point2.x -   point1.x ),2)  +
+    Math.pow((point2.y -   point1.y),2)  +
+		Math.pow((point2.z -   point1.z ),2)   );
+
+  mid_x = (point1.x + point2.x)/2;
+	mid_y = ( point1.y + point2.y)/2 ;
+  mid_z = (point1.z + point2.z)/2;
+
+  if (point1.x >= point2.x) {
+    z_delta = safe_distance;
+	}
+	else {
+    z_delta = -1*safe_distance;
+	}
+
+	if (point1.z > point2.z) {
+	 x_delta = -1*safe_distance;
+  }
+	else {
+		x_delta = safe_distance;
+  }
+	var numPoints = 30;
+
+	// this creates the curvy path of the tube
+	path = [  point1,
+	  new THREE.Vector3( mid_x + x_delta ,
+			mid_y,
+		  mid_z+ z_delta ),
+	  point2
+  ];
+
+	pathBase = new THREE.CatmullRomCurve3(path);
+
+
+
+	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
+	var geometry = new THREE.TubeGeometry(pathBase, 64, tube_radius, 4);
+	var mesh = new THREE.Mesh( geometry, material );
+  return mesh;
+
+}
+
+
+
+
+// this scales the tube according to the min/max flow and the min/max tube width
+function tube_radius_cal(flow_val) {
+	var result_val = (flow_val - min_flow) * tube_width_multiplier + min_width ;
+	return result_val;
+}
+
+
+ // this translates the state's lat and long into x,y,z coordinates
+function x_from_lat (lat)  {
+ 	var q =  lat - (min_lat + (max_lat - min_lat)/2);
+ 	return q
+ }
+
+ function y_from_pop (population)  {
+	var pop_level = population - (max_pop - min_pop)/2 - min_pop;
+ 	return pop_level/1000000 *1.1
+ }
+
+ function z_from_long (long)  {
+  average_long = (max_long - min_long)/2 + min_long;
+	m = (long - average_long)*2;
+	return -1*m -15;
+ }
+
+
+
+function render() {
+
+	controls.update();
+
+  //  texture_in.offset.y += texture_in_offset;
+  //	texture_out.offset.y -= texture_in_offset;
+  texture_inter.offset.x += texture_inter_offset;
+		// X_text.lookAt( camera.position );
+	renderer.render( scene, camera );
+
+}
+
+function animate() {
+ requestAnimationFrame( animate );
+  //console.log(camera.quaternion);
+ render();
+
+
+ text_group.children.forEach(
+     function(pChild){
+          pChild.quaternion.copy(camera.quaternion);
+     }
+ );
+
+ //X_text.applyQuaternion(camera.quaternion );
+ //console.log(X_text.quaternion);
+ //X_text.rotation.z = 0;
+	 controls.update();
+  console.log(camera.position.x, camera.position.y, camera.position.z);
+ //console.log(X_text);
+
+}
+
+</script>
+</body>
+</html>
