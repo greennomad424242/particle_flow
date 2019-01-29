@@ -41,6 +41,14 @@
     "lat": "41.767",
     "long": "-72.677"
   },
+
+  "DC": {
+    "name": "District of Columbia",
+    "capital": "Washington",
+    "lat": "38.9072",
+    "long": "-77.0369"
+  },
+
   "DE": {
     "name": "Delaware",
     "capital": "Dover",
@@ -227,6 +235,8 @@
     "lat": "40.269789",
     "long": "-76.875613"
   },
+
+
   "RI": {
     "name": "Rhode Island",
     "capital": "Providence",

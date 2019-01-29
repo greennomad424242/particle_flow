@@ -15,11 +15,6 @@
    "Total": 29561
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Florida",
-   "Total": 26204
- },
- {
    "Origin": "California",
    "Destination": "Nevada",
    "Total": 23745
@@ -240,16 +235,6 @@
    "Total": 6045
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Pennsylvania",
-   "Total": 5840
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Massachusetts",
-   "Total": 5601
- },
- {
    "Origin": "Illinois",
    "Destination": "Colorado",
    "Total": 5480
@@ -395,13 +380,13 @@
    "Total": 4077
  },
  {
-   "Origin": "New York",
-   "Destination": "Georgia",
+   "Origin": "New Jersey",
+   "Destination": "Colorado",
    "Total": 4067
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "Colorado",
+   "Origin": "New York",
+   "Destination": "Georgia",
    "Total": 4067
  },
  {
@@ -435,11 +420,6 @@
    "Total": 3870
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Texas",
-   "Total": 3870
- },
- {
    "Origin": "Massachusetts",
    "Destination": "Rhode Island",
    "Total": 3862
@@ -458,11 +438,6 @@
    "Origin": "Pennsylvania",
    "Destination": "North Carolina",
    "Total": 3592
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "New Jersey",
-   "Total": 3577
  },
  {
    "Origin": "Ohio",
@@ -565,11 +540,6 @@
    "Total": 2997
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Georgia",
-   "Total": 2971
- },
- {
    "Origin": "Florida",
    "Destination": "Arizona",
    "Total": 2945
@@ -583,11 +553,6 @@
    "Origin": "Oklahoma",
    "Destination": "Arizona",
    "Total": 2925
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "North Carolina",
-   "Total": 2917
  },
  {
    "Origin": "Maryland",
@@ -610,13 +575,13 @@
    "Total": 2832
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Mississippi",
+   "Origin": "Indiana",
+   "Destination": "Florida",
    "Total": 2806
  },
  {
-   "Origin": "Indiana",
-   "Destination": "Florida",
+   "Origin": "Tennessee",
+   "Destination": "Mississippi",
    "Total": 2806
  },
  {
@@ -655,11 +620,6 @@
    "Total": 2659
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "New York",
-   "Total": 2647
- },
- {
    "Origin": "California",
    "Destination": "Montana",
    "Total": 2638
@@ -690,11 +650,6 @@
    "Total": 2548
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Wisconsin",
-   "Total": 2541
- },
- {
    "Origin": "Hawaii",
    "Destination": "Maryland",
    "Total": 2538
@@ -703,11 +658,6 @@
    "Origin": "Oklahoma",
    "Destination": "Virginia",
    "Total": 2532
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Michigan",
-   "Total": 2525
  },
  {
    "Origin": "South Carolina",
@@ -733,11 +683,6 @@
    "Origin": "Missouri",
    "Destination": "New York",
    "Total": 2486
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Connecticut",
-   "Total": 2480
  },
  {
    "Origin": "Connecticut",
@@ -803,11 +748,6 @@
    "Origin": "Kentucky",
    "Destination": "Michigan",
    "Total": 2355
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Ohio",
-   "Total": 2353
  },
  {
    "Origin": "Illinois",
@@ -1025,13 +965,13 @@
    "Total": 1952
  },
  {
-   "Origin": "New York",
-   "Destination": "Virginia",
+   "Origin": "North Dakota",
+   "Destination": "Utah",
    "Total": 1937
  },
  {
-   "Origin": "North Dakota",
-   "Destination": "Utah",
+   "Origin": "New York",
+   "Destination": "Virginia",
    "Total": 1937
  },
  {
@@ -1040,13 +980,13 @@
    "Total": 1935
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "District of Columbia",
+   "Origin": "Hawaii",
+   "Destination": "Colorado",
    "Total": 1928
  },
  {
-   "Origin": "Hawaii",
-   "Destination": "Colorado",
+   "Origin": "New Jersey",
+   "Destination": "District of Columbia",
    "Total": 1928
  },
  {
@@ -1098,11 +1038,6 @@
    "Origin": "California",
    "Destination": "Georgia",
    "Total": 1819
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Maryland",
-   "Total": 1808
  },
  {
    "Origin": "West Virginia",
@@ -1180,18 +1115,13 @@
    "Total": 1697
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Illinois",
-   "Total": 1658
+   "Origin": "Louisiana",
+   "Destination": "Arizona",
+   "Total": 1654
  },
  {
    "Origin": "Pennsylvania",
    "Destination": "Missouri",
-   "Total": 1654
- },
- {
-   "Origin": "Louisiana",
-   "Destination": "Arizona",
    "Total": 1654
  },
  {
@@ -1290,13 +1220,13 @@
    "Total": 1544
  },
  {
-   "Origin": "Nevada",
-   "Destination": "Utah",
+   "Origin": "Iowa",
+   "Destination": "California",
    "Total": 1538
  },
  {
-   "Origin": "Iowa",
-   "Destination": "California",
+   "Origin": "Nevada",
+   "Destination": "Utah",
    "Total": 1538
  },
  {
@@ -1430,11 +1360,6 @@
    "Total": 1394
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Kentucky",
-   "Total": 1393
- },
- {
    "Origin": "New Mexico",
    "Destination": "Georgia",
    "Total": 1388
@@ -1535,11 +1460,6 @@
    "Total": 1301
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "South Carolina",
-   "Total": 1297
- },
- {
    "Origin": "California",
    "Destination": "Nebraska",
    "Total": 1288
@@ -1615,13 +1535,13 @@
    "Total": 1202
  },
  {
-   "Origin": "Maryland",
-   "Destination": "Oregon",
+   "Origin": "North Carolina",
+   "Destination": "Idaho",
    "Total": 1197
  },
  {
-   "Origin": "North Carolina",
-   "Destination": "Idaho",
+   "Origin": "Maryland",
+   "Destination": "Oregon",
    "Total": 1197
  },
  {
@@ -1730,13 +1650,13 @@
    "Total": 1109
  },
  {
-   "Origin": "Indiana",
-   "Destination": "New York",
+   "Origin": "Kentucky",
+   "Destination": "Indiana",
    "Total": 1106
  },
  {
-   "Origin": "Kentucky",
-   "Destination": "Indiana",
+   "Origin": "Indiana",
+   "Destination": "New York",
    "Total": 1106
  },
  {
@@ -1770,8 +1690,8 @@
    "Total": 1081
  },
  {
-   "Origin": "Utah",
-   "Destination": "Wisconsin",
+   "Origin": "Iowa",
+   "Destination": "Arizona",
    "Total": 1077
  },
  {
@@ -1780,8 +1700,8 @@
    "Total": 1077
  },
  {
-   "Origin": "Iowa",
-   "Destination": "Arizona",
+   "Origin": "Utah",
+   "Destination": "Wisconsin",
    "Total": 1077
  },
  {
@@ -1810,13 +1730,13 @@
    "Total": 1061
  },
  {
-   "Origin": "Alaska",
-   "Destination": "North Carolina",
+   "Origin": "South Dakota",
+   "Destination": "Arizona",
    "Total": 1056
  },
  {
-   "Origin": "South Dakota",
-   "Destination": "Arizona",
+   "Origin": "Alaska",
+   "Destination": "North Carolina",
    "Total": 1056
  },
  {
@@ -1910,11 +1830,6 @@
    "Total": 985
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Tennessee",
-   "Total": 979
- },
- {
    "Origin": "Michigan",
    "Destination": "Massachusetts",
    "Total": 977
@@ -1940,13 +1855,13 @@
    "Total": 964
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "Mississippi",
+   "Origin": "Minnesota",
+   "Destination": "Iowa",
    "Total": 964
  },
  {
-   "Origin": "Minnesota",
-   "Destination": "Iowa",
+   "Origin": "New Jersey",
+   "Destination": "Mississippi",
    "Total": 964
  },
  {
@@ -1985,23 +1900,23 @@
    "Total": 939
  },
  {
-   "Origin": "Connecticut",
-   "Destination": "Washington",
-   "Total": 936
- },
- {
    "Origin": "Hawaii",
    "Destination": "New York",
    "Total": 936
  },
  {
-   "Origin": "Mississippi",
-   "Destination": "Pennsylvania",
-   "Total": 933
+   "Origin": "Connecticut",
+   "Destination": "Washington",
+   "Total": 936
  },
  {
    "Origin": "Ohio",
    "Destination": "Indiana",
+   "Total": 933
+ },
+ {
+   "Origin": "Mississippi",
+   "Destination": "Pennsylvania",
    "Total": 933
  },
  {
@@ -2050,13 +1965,13 @@
    "Total": 900
  },
  {
-   "Origin": "Massachusetts",
-   "Destination": "Texas",
+   "Origin": "New York",
+   "Destination": "Kentucky",
    "Total": 899
  },
  {
-   "Origin": "New York",
-   "Destination": "Kentucky",
+   "Origin": "Massachusetts",
+   "Destination": "Texas",
    "Total": 899
  },
  {
@@ -2180,11 +2095,6 @@
    "Total": 829
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Colorado",
-   "Total": 828
- },
- {
    "Origin": "Pennsylvania",
    "Destination": "Iowa",
    "Total": 826
@@ -2200,13 +2110,13 @@
    "Total": 825
  },
  {
-   "Origin": "Iowa",
-   "Destination": "Oklahoma",
+   "Origin": "Oregon",
+   "Destination": "North Carolina",
    "Total": 823
  },
  {
-   "Origin": "Oregon",
-   "Destination": "North Carolina",
+   "Origin": "Iowa",
+   "Destination": "Oklahoma",
    "Total": 823
  },
  {
@@ -2215,13 +2125,13 @@
    "Total": 822
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Iowa",
+   "Origin": "Delaware",
+   "Destination": "Georgia",
    "Total": 818
  },
  {
-   "Origin": "Delaware",
-   "Destination": "Georgia",
+   "Origin": "Tennessee",
+   "Destination": "Iowa",
    "Total": 818
  },
  {
@@ -2285,13 +2195,13 @@
    "Total": 784
  },
  {
-   "Origin": "Minnesota",
-   "Destination": "Oklahoma",
+   "Origin": "Kansas",
+   "Destination": "Colorado",
    "Total": 782
  },
  {
-   "Origin": "Kansas",
-   "Destination": "Colorado",
+   "Origin": "Minnesota",
+   "Destination": "Oklahoma",
    "Total": 782
  },
  {
@@ -2303,11 +2213,6 @@
    "Origin": "Iowa",
    "Destination": "Colorado",
    "Total": 778
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Virginia",
-   "Total": 777
  },
  {
    "Origin": "Wyoming",
@@ -2340,13 +2245,13 @@
    "Total": 771
  },
  {
-   "Origin": "Wisconsin",
-   "Destination": "South Carolina",
+   "Origin": "Oklahoma",
+   "Destination": "Michigan",
    "Total": 770
  },
  {
-   "Origin": "Oklahoma",
-   "Destination": "Michigan",
+   "Origin": "Wisconsin",
+   "Destination": "South Carolina",
    "Total": 770
  },
  {
@@ -2355,13 +2260,13 @@
    "Total": 768
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Tennessee",
+   "Origin": "Louisiana",
+   "Destination": "Kentucky",
    "Total": 762
  },
  {
-   "Origin": "Louisiana",
-   "Destination": "Kentucky",
+   "Origin": "New Mexico",
+   "Destination": "Tennessee",
    "Total": 762
  },
  {
@@ -2385,12 +2290,12 @@
    "Total": 737
  },
  {
-   "Origin": "Tennessee",
+   "Origin": "Connecticut",
    "Destination": "District of Columbia",
    "Total": 735
  },
  {
-   "Origin": "Connecticut",
+   "Origin": "Tennessee",
    "Destination": "District of Columbia",
    "Total": 735
  },
@@ -2425,6 +2330,11 @@
    "Total": 718
  },
  {
+   "Origin": "Kansas",
+   "Destination": "Florida",
+   "Total": 715
+ },
+ {
    "Origin": "Georgia",
    "Destination": "Utah",
    "Total": 715
@@ -2432,11 +2342,6 @@
  {
    "Origin": "Oklahoma",
    "Destination": "Utah",
-   "Total": 715
- },
- {
-   "Origin": "Kansas",
-   "Destination": "Florida",
    "Total": 715
  },
  {
@@ -2465,6 +2370,11 @@
    "Total": 707
  },
  {
+   "Origin": "Arkansas",
+   "Destination": "Arizona",
+   "Total": 703
+ },
+ {
    "Origin": "Michigan",
    "Destination": "Arizona",
    "Total": 703
@@ -2472,11 +2382,6 @@
  {
    "Origin": "Louisiana",
    "Destination": "South Carolina",
-   "Total": 703
- },
- {
-   "Origin": "Arkansas",
-   "Destination": "Arizona",
    "Total": 703
  },
  {
@@ -2505,13 +2410,13 @@
    "Total": 688
  },
  {
-   "Origin": "Utah",
-   "Destination": "Massachusetts",
+   "Origin": "Connecticut",
+   "Destination": "Georgia",
    "Total": 685
  },
  {
-   "Origin": "Connecticut",
-   "Destination": "Georgia",
+   "Origin": "Utah",
+   "Destination": "Massachusetts",
    "Total": 685
  },
  {
@@ -2540,17 +2445,12 @@
    "Total": 665
  },
  {
-   "Origin": "Pennsylvania",
-   "Destination": "North Dakota",
-   "Total": 664
- },
- {
    "Origin": "Michigan",
    "Destination": "California",
    "Total": 664
  },
  {
-   "Origin": "Puerto Rico",
+   "Origin": "Pennsylvania",
    "Destination": "North Dakota",
    "Total": 664
  },
@@ -2565,13 +2465,13 @@
    "Total": 659
  },
  {
-   "Origin": "New Hampshire",
-   "Destination": "Ohio",
+   "Origin": "Illinois",
+   "Destination": "New Hampshire",
    "Total": 658
  },
  {
-   "Origin": "Illinois",
-   "Destination": "New Hampshire",
+   "Origin": "New Hampshire",
+   "Destination": "Ohio",
    "Total": 658
  },
  {
@@ -2585,13 +2485,13 @@
    "Total": 652
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Virginia",
+   "Origin": "Illinois",
+   "Destination": "Utah",
    "Total": 650
  },
  {
-   "Origin": "Illinois",
-   "Destination": "Utah",
+   "Origin": "New Mexico",
+   "Destination": "Virginia",
    "Total": 650
  },
  {
@@ -2630,11 +2530,6 @@
    "Total": 631
  },
  {
-   "Origin": "North Carolina",
-   "Destination": "Utah",
-   "Total": 630
- },
- {
    "Origin": "Tennessee",
    "Destination": "Colorado",
    "Total": 630
@@ -2645,18 +2540,23 @@
    "Total": 630
  },
  {
+   "Origin": "North Carolina",
+   "Destination": "Utah",
+   "Total": 630
+ },
+ {
    "Origin": "North Dakota",
    "Destination": "Montana",
    "Total": 627
  },
  {
-   "Origin": "South Dakota",
-   "Destination": "Nevada",
+   "Origin": "Michigan",
+   "Destination": "Montana",
    "Total": 626
  },
  {
-   "Origin": "Michigan",
-   "Destination": "Montana",
+   "Origin": "South Dakota",
+   "Destination": "Nevada",
    "Total": 626
  },
  {
@@ -2685,13 +2585,13 @@
    "Total": 606
  },
  {
-   "Origin": "Nebraska",
-   "Destination": "Kansas",
+   "Origin": "Illinois",
+   "Destination": "Hawaii",
    "Total": 602
  },
  {
-   "Origin": "Illinois",
-   "Destination": "Hawaii",
+   "Origin": "Nebraska",
+   "Destination": "Kansas",
    "Total": 602
  },
  {
@@ -2703,11 +2603,6 @@
    "Origin": "Delaware",
    "Destination": "Virginia",
    "Total": 597
- },
- {
-   "Origin": "Rhode Island",
-   "Destination": "Puerto Rico",
-   "Total": 595
  },
  {
    "Origin": "Kentucky",
@@ -2748,11 +2643,6 @@
    "Origin": "New Hampshire",
    "Destination": "South Carolina",
    "Total": 574
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Arkansas",
-   "Total": 573
  },
  {
    "Origin": "Connecticut",
@@ -2825,23 +2715,23 @@
    "Total": 550
  },
  {
-   "Origin": "Virginia",
-   "Destination": "Michigan",
-   "Total": 548
- },
- {
    "Origin": "New Hampshire",
    "Destination": "Louisiana",
    "Total": 548
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Montana",
-   "Total": 545
+   "Origin": "Virginia",
+   "Destination": "Michigan",
+   "Total": 548
  },
  {
    "Origin": "Georgia",
    "Destination": "Michigan",
+   "Total": 545
+ },
+ {
+   "Origin": "Alaska",
+   "Destination": "Montana",
    "Total": 545
  },
  {
@@ -2860,18 +2750,18 @@
    "Total": 542
  },
  {
-   "Origin": "Nevada",
-   "Destination": "Kansas",
-   "Total": 540
- },
- {
    "Origin": "Alaska",
    "Destination": "Connecticut",
    "Total": 540
  },
  {
-   "Origin": "Virginia",
-   "Destination": "Wyoming",
+   "Origin": "Nevada",
+   "Destination": "Kansas",
+   "Total": 540
+ },
+ {
+   "Origin": "Rhode Island",
+   "Destination": "Colorado",
    "Total": 538
  },
  {
@@ -2880,8 +2770,8 @@
    "Total": 538
  },
  {
-   "Origin": "Rhode Island",
-   "Destination": "Colorado",
+   "Origin": "Virginia",
+   "Destination": "Wyoming",
    "Total": 538
  },
  {
@@ -2890,19 +2780,14 @@
    "Total": 537
  },
  {
-   "Origin": "Minnesota",
-   "Destination": "Massachusetts",
-   "Total": 534
- },
- {
    "Origin": "Nevada",
    "Destination": "Iowa",
    "Total": 534
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "New Hampshire",
-   "Total": 533
+   "Origin": "Minnesota",
+   "Destination": "Massachusetts",
+   "Total": 534
  },
  {
    "Origin": "New Jersey",
@@ -2970,23 +2855,18 @@
    "Total": 505
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Minnesota",
-   "Total": 503
- },
- {
    "Origin": "North Dakota",
    "Destination": "Missouri",
    "Total": 503
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Oregon",
+   "Origin": "Illinois",
+   "Destination": "New York",
    "Total": 502
  },
  {
-   "Origin": "Illinois",
-   "Destination": "New York",
+   "Origin": "New Mexico",
+   "Destination": "Oregon",
    "Total": 502
  },
  {
@@ -3010,8 +2890,8 @@
    "Total": 498
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "Tennessee",
+   "Origin": "Alaska",
+   "Destination": "Florida",
    "Total": 494
  },
  {
@@ -3020,8 +2900,8 @@
    "Total": 494
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Florida",
+   "Origin": "New Jersey",
+   "Destination": "Tennessee",
    "Total": 494
  },
  {
@@ -3120,13 +3000,13 @@
    "Total": 466
  },
  {
-   "Origin": "South Carolina",
-   "Destination": "Colorado",
+   "Origin": "Washington",
+   "Destination": "Arkansas",
    "Total": 465
  },
  {
-   "Origin": "Washington",
-   "Destination": "Arkansas",
+   "Origin": "South Carolina",
+   "Destination": "Colorado",
    "Total": 465
  },
  {
@@ -3160,11 +3040,6 @@
    "Total": 455
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Louisiana",
-   "Total": 455
- },
- {
    "Origin": "Iowa",
    "Destination": "Alaska",
    "Total": 454
@@ -3173,11 +3048,6 @@
    "Origin": "Illinois",
    "Destination": "Alaska",
    "Total": 453
- },
- {
-   "Origin": "Indiana",
-   "Destination": "Puerto Rico",
-   "Total": 451
  },
  {
    "Origin": "Mississippi",
@@ -3195,13 +3065,13 @@
    "Total": 448
  },
  {
-   "Origin": "Florida",
-   "Destination": "Montana",
+   "Origin": "New Mexico",
+   "Destination": "Minnesota",
    "Total": 447
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Minnesota",
+   "Origin": "Florida",
+   "Destination": "Montana",
    "Total": 447
  },
  {
@@ -3260,11 +3130,6 @@
    "Total": 428
  },
  {
-   "Origin": "Washington",
-   "Destination": "Wisconsin",
-   "Total": 425
- },
- {
    "Origin": "Kansas",
    "Destination": "North Carolina",
    "Total": 425
@@ -3272,6 +3137,11 @@
  {
    "Origin": "New Jersey",
    "Destination": "Vermont",
+   "Total": 425
+ },
+ {
+   "Origin": "Washington",
+   "Destination": "Wisconsin",
    "Total": 425
  },
  {
@@ -3290,19 +3160,14 @@
    "Total": 421
  },
  {
-   "Origin": "Wyoming",
-   "Destination": "South Dakota",
-   "Total": 418
- },
- {
    "Origin": "New Jersey",
    "Destination": "Kentucky",
    "Total": 418
  },
  {
-   "Origin": "South Carolina",
-   "Destination": "Utah",
-   "Total": 417
+   "Origin": "Wyoming",
+   "Destination": "South Dakota",
+   "Total": 418
  },
  {
    "Origin": "Pennsylvania",
@@ -3310,13 +3175,18 @@
    "Total": 417
  },
  {
-   "Origin": "Michigan",
-   "Destination": "Idaho",
-   "Total": 414
+   "Origin": "South Carolina",
+   "Destination": "Utah",
+   "Total": 417
  },
  {
    "Origin": "Nebraska",
    "Destination": "Arizona",
+   "Total": 414
+ },
+ {
+   "Origin": "Michigan",
+   "Destination": "Idaho",
    "Total": 414
  },
  {
@@ -3340,13 +3210,13 @@
    "Total": 410
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "Maine",
+   "Origin": "Utah",
+   "Destination": "Iowa",
    "Total": 408
  },
  {
-   "Origin": "Utah",
-   "Destination": "Iowa",
+   "Origin": "New Jersey",
+   "Destination": "Maine",
    "Total": 408
  },
  {
@@ -3400,13 +3270,13 @@
    "Total": 392
  },
  {
-   "Origin": "Rhode Island",
-   "Destination": "Washington",
+   "Origin": "Alaska",
+   "Destination": "Nevada",
    "Total": 391
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Nevada",
+   "Origin": "Rhode Island",
+   "Destination": "Washington",
    "Total": 391
  },
  {
@@ -3415,23 +3285,13 @@
    "Total": 388
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Oklahoma",
-   "Total": 386
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Nevada",
-   "Total": 384
+   "Origin": "Massachusetts",
+   "Destination": "Hawaii",
+   "Total": 381
  },
  {
    "Origin": "Rhode Island",
    "Destination": "New York",
-   "Total": 381
- },
- {
-   "Origin": "Massachusetts",
-   "Destination": "Hawaii",
    "Total": 381
  },
  {
@@ -3445,13 +3305,13 @@
    "Total": 377
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Virginia",
+   "Origin": "New Mexico",
+   "Destination": "Missouri",
    "Total": 376
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Missouri",
+   "Origin": "Alaska",
+   "Destination": "Virginia",
    "Total": 376
  },
  {
@@ -3515,13 +3375,13 @@
    "Total": 362
  },
  {
-   "Origin": "Mississippi",
-   "Destination": "Utah",
+   "Origin": "Louisiana",
+   "Destination": "District of Columbia",
    "Total": 361
  },
  {
-   "Origin": "Louisiana",
-   "Destination": "District of Columbia",
+   "Origin": "Mississippi",
+   "Destination": "Utah",
    "Total": 361
  },
  {
@@ -3535,19 +3395,9 @@
    "Total": 358
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "South Dakota",
-   "Total": 358
- },
- {
    "Origin": "Wisconsin",
    "Destination": "Arkansas",
    "Total": 357
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "District of Columbia",
-   "Total": 356
  },
  {
    "Origin": "Nebraska",
@@ -3578,11 +3428,6 @@
    "Origin": "New Mexico",
    "Destination": "Pennsylvania",
    "Total": 348
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Kansas",
-   "Total": 347
  },
  {
    "Origin": "Nebraska",
@@ -3650,11 +3495,6 @@
    "Total": 331
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Arizona",
-   "Total": 330
- },
- {
    "Origin": "Delaware",
    "Destination": "Tennessee",
    "Total": 330
@@ -3700,8 +3540,8 @@
    "Total": 322
  },
  {
-   "Origin": "Delaware",
-   "Destination": "South Carolina",
+   "Origin": "Iowa",
+   "Destination": "North Dakota",
    "Total": 320
  },
  {
@@ -3710,13 +3550,13 @@
    "Total": 320
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Utah",
+   "Origin": "Delaware",
+   "Destination": "South Carolina",
    "Total": 320
  },
  {
-   "Origin": "Iowa",
-   "Destination": "North Dakota",
+   "Origin": "Tennessee",
+   "Destination": "Utah",
    "Total": 320
  },
  {
@@ -3735,13 +3575,13 @@
    "Total": 317
  },
  {
-   "Origin": "Maryland",
-   "Destination": "Utah",
+   "Origin": "North Dakota",
+   "Destination": "Ohio",
    "Total": 317
  },
  {
-   "Origin": "North Dakota",
-   "Destination": "Ohio",
+   "Origin": "Maryland",
+   "Destination": "Utah",
    "Total": 317
  },
  {
@@ -3760,13 +3600,13 @@
    "Total": 314
  },
  {
-   "Origin": "Rhode Island",
-   "Destination": "Maryland",
+   "Origin": "Idaho",
+   "Destination": "Illinois",
    "Total": 313
  },
  {
-   "Origin": "Idaho",
-   "Destination": "Illinois",
+   "Origin": "Rhode Island",
+   "Destination": "Maryland",
    "Total": 313
  },
  {
@@ -3786,22 +3626,22 @@
  },
  {
    "Origin": "Hawaii",
-   "Destination": "New Hampshire",
-   "Total": 307
- },
- {
-   "Origin": "Hawaii",
    "Destination": "Louisiana",
    "Total": 307
  },
  {
-   "Origin": "Maryland",
-   "Destination": "South Dakota",
-   "Total": 306
+   "Origin": "Hawaii",
+   "Destination": "New Hampshire",
+   "Total": 307
  },
  {
    "Origin": "Nebraska",
    "Destination": "New Jersey",
+   "Total": 306
+ },
+ {
+   "Origin": "Maryland",
+   "Destination": "South Dakota",
    "Total": 306
  },
  {
@@ -3830,11 +3670,6 @@
    "Total": 299
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "California",
-   "Total": 297
- },
- {
    "Origin": "Missouri",
    "Destination": "District of Columbia",
    "Total": 296
@@ -3860,19 +3695,14 @@
    "Total": 293
  },
  {
-   "Origin": "Alaska",
-   "Destination": "New York",
-   "Total": 292
- },
- {
    "Origin": "South Dakota",
    "Destination": "Montana",
    "Total": 292
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Nebraska",
-   "Total": 291
+   "Origin": "Alaska",
+   "Destination": "New York",
+   "Total": 292
  },
  {
    "Origin": "North Dakota",
@@ -3915,11 +3745,6 @@
    "Total": 282
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Mississippi",
-   "Total": 281
- },
- {
    "Origin": "Louisiana",
    "Destination": "Idaho",
    "Total": 281
@@ -3940,13 +3765,13 @@
    "Total": 276
  },
  {
-   "Origin": "Kansas",
-   "Destination": "Massachusetts",
+   "Origin": "New Mexico",
+   "Destination": "Hawaii",
    "Total": 275
  },
  {
-   "Origin": "New Mexico",
-   "Destination": "Hawaii",
+   "Origin": "Kansas",
+   "Destination": "Massachusetts",
    "Total": 275
  },
  {
@@ -3985,13 +3810,13 @@
    "Total": 267
  },
  {
-   "Origin": "Massachusetts",
-   "Destination": "Oregon",
+   "Origin": "Wyoming",
+   "Destination": "Kentucky",
    "Total": 266
  },
  {
-   "Origin": "Wyoming",
-   "Destination": "Kentucky",
+   "Origin": "Massachusetts",
+   "Destination": "Oregon",
    "Total": 266
  },
  {
@@ -4045,8 +3870,8 @@
    "Total": 256
  },
  {
-   "Origin": "Missouri",
-   "Destination": "Oregon",
+   "Origin": "South Carolina",
+   "Destination": "Arkansas",
    "Total": 255
  },
  {
@@ -4055,14 +3880,9 @@
    "Total": 255
  },
  {
-   "Origin": "South Carolina",
-   "Destination": "Arkansas",
+   "Origin": "Missouri",
+   "Destination": "Oregon",
    "Total": 255
- },
- {
-   "Origin": "Wyoming",
-   "Destination": "Wisconsin",
-   "Total": 253
  },
  {
    "Origin": "Idaho",
@@ -4070,9 +3890,9 @@
    "Total": 253
  },
  {
-   "Origin": "Idaho",
-   "Destination": "New Jersey",
-   "Total": 251
+   "Origin": "Wyoming",
+   "Destination": "Wisconsin",
+   "Total": 253
  },
  {
    "Origin": "Wyoming",
@@ -4080,8 +3900,13 @@
    "Total": 251
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "Minnesota",
+   "Origin": "Idaho",
+   "Destination": "New Jersey",
+   "Total": 251
+ },
+ {
+   "Origin": "Arkansas",
+   "Destination": "Georgia",
    "Total": 250
  },
  {
@@ -4090,8 +3915,8 @@
    "Total": 250
  },
  {
-   "Origin": "Arkansas",
-   "Destination": "Georgia",
+   "Origin": "New Jersey",
+   "Destination": "Minnesota",
    "Total": 250
  },
  {
@@ -4145,13 +3970,13 @@
    "Total": 242
  },
  {
-   "Origin": "Delaware",
-   "Destination": "Wyoming",
+   "Origin": "Montana",
+   "Destination": "Missouri",
    "Total": 240
  },
  {
-   "Origin": "Montana",
-   "Destination": "Missouri",
+   "Origin": "Delaware",
+   "Destination": "Wyoming",
    "Total": 240
  },
  {
@@ -4175,13 +4000,13 @@
    "Total": 235
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Oregon",
+   "Origin": "Kentucky",
+   "Destination": "District of Columbia",
    "Total": 234
  },
  {
-   "Origin": "Kentucky",
-   "Destination": "District of Columbia",
+   "Origin": "Tennessee",
+   "Destination": "Oregon",
    "Total": 234
  },
  {
@@ -4210,13 +4035,13 @@
    "Total": 229
  },
  {
-   "Origin": "Hawaii",
-   "Destination": "New Jersey",
+   "Origin": "Vermont",
+   "Destination": "Missouri",
    "Total": 228
  },
  {
-   "Origin": "Vermont",
-   "Destination": "Missouri",
+   "Origin": "Hawaii",
+   "Destination": "New Jersey",
    "Total": 228
  },
  {
@@ -4285,13 +4110,13 @@
    "Total": 218
  },
  {
-   "Origin": "New Hampshire",
-   "Destination": "West Virginia",
+   "Origin": "Minnesota",
+   "Destination": "Kentucky",
    "Total": 217
  },
  {
-   "Origin": "Minnesota",
-   "Destination": "Kentucky",
+   "Origin": "New Hampshire",
+   "Destination": "West Virginia",
    "Total": 217
  },
  {
@@ -4335,13 +4160,13 @@
    "Total": 208
  },
  {
-   "Origin": "Ohio",
-   "Destination": "Oklahoma",
+   "Origin": "Louisiana",
+   "Destination": "Nevada",
    "Total": 207
  },
  {
-   "Origin": "Louisiana",
-   "Destination": "Nevada",
+   "Origin": "Ohio",
+   "Destination": "Oklahoma",
    "Total": 207
  },
  {
@@ -4360,11 +4185,6 @@
    "Total": 205
  },
  {
-   "Origin": "North Carolina",
-   "Destination": "South Dakota",
-   "Total": 203
- },
- {
    "Origin": "District of Columbia",
    "Destination": "Hawaii",
    "Total": 203
@@ -4375,18 +4195,23 @@
    "Total": 203
  },
  {
+   "Origin": "North Carolina",
+   "Destination": "South Dakota",
+   "Total": 203
+ },
+ {
    "Origin": "Alaska",
    "Destination": "Vermont",
    "Total": 203
  },
  {
-   "Origin": "North Dakota",
-   "Destination": "New York",
+   "Origin": "Illinois",
+   "Destination": "Mississippi",
    "Total": 202
  },
  {
-   "Origin": "Illinois",
-   "Destination": "Mississippi",
+   "Origin": "North Dakota",
+   "Destination": "New York",
    "Total": 202
  },
  {
@@ -4400,11 +4225,6 @@
    "Total": 196
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "New Mexico",
-   "Total": 196
- },
- {
    "Origin": "Mississippi",
    "Destination": "Nevada",
    "Total": 196
@@ -4415,13 +4235,18 @@
    "Total": 196
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Utah",
-   "Total": 195
+   "Origin": "New Jersey",
+   "Destination": "New Mexico",
+   "Total": 196
  },
  {
    "Origin": "Utah",
    "Destination": "Pennsylvania",
+   "Total": 195
+ },
+ {
+   "Origin": "Alaska",
+   "Destination": "Utah",
    "Total": 195
  },
  {
@@ -4445,11 +4270,6 @@
    "Total": 190
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Idaho",
-   "Total": 187
- },
- {
    "Origin": "North Dakota",
    "Destination": "Connecticut",
    "Total": 187
@@ -4457,6 +4277,11 @@
  {
    "Origin": "Arizona",
    "Destination": "District of Columbia",
+   "Total": 187
+ },
+ {
+   "Origin": "Tennessee",
+   "Destination": "Idaho",
    "Total": 187
  },
  {
@@ -4485,6 +4310,11 @@
    "Total": 184
  },
  {
+   "Origin": "Montana",
+   "Destination": "Mississippi",
+   "Total": 184
+ },
+ {
    "Origin": "Vermont",
    "Destination": "New Hampshire",
    "Total": 184
@@ -4492,11 +4322,6 @@
  {
    "Origin": "Wyoming",
    "Destination": "Tennessee",
-   "Total": 184
- },
- {
-   "Origin": "Montana",
-   "Destination": "Mississippi",
    "Total": 184
  },
  {
@@ -4510,13 +4335,13 @@
    "Total": 183
  },
  {
-   "Origin": "Wyoming",
-   "Destination": "Ohio",
+   "Origin": "Wisconsin",
+   "Destination": "Idaho",
    "Total": 182
  },
  {
-   "Origin": "Wisconsin",
-   "Destination": "Idaho",
+   "Origin": "Wyoming",
+   "Destination": "Ohio",
    "Total": 182
  },
  {
@@ -4535,11 +4360,6 @@
    "Total": 178
  },
  {
-   "Origin": "Vermont",
-   "Destination": "Texas",
-   "Total": 177
- },
- {
    "Origin": "Indiana",
    "Destination": "Massachusetts",
    "Total": 177
@@ -4547,6 +4367,11 @@
  {
    "Origin": "Alaska",
    "Destination": "South Dakota",
+   "Total": 177
+ },
+ {
+   "Origin": "Vermont",
+   "Destination": "Texas",
    "Total": 177
  },
  {
@@ -4570,13 +4395,13 @@
    "Total": 173
  },
  {
-   "Origin": "Illinois",
-   "Destination": "Nevada",
+   "Origin": "Maryland",
+   "Destination": "Kansas",
    "Total": 172
  },
  {
-   "Origin": "Maryland",
-   "Destination": "Kansas",
+   "Origin": "Illinois",
+   "Destination": "Nevada",
    "Total": 172
  },
  {
@@ -4600,18 +4425,18 @@
    "Total": 169
  },
  {
+   "Origin": "Tennessee",
+   "Destination": "Nevada",
+   "Total": 168
+ },
+ {
    "Origin": "Nebraska",
    "Destination": "South Carolina",
    "Total": 168
  },
  {
    "Origin": "Tennessee",
-   "Destination": "Nevada",
-   "Total": 168
- },
- {
-   "Origin": "Louisiana",
-   "Destination": "Pennsylvania",
+   "Destination": "New Hampshire",
    "Total": 167
  },
  {
@@ -4620,8 +4445,8 @@
    "Total": 167
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "New Hampshire",
+   "Origin": "Louisiana",
+   "Destination": "Pennsylvania",
    "Total": 167
  },
  {
@@ -4633,11 +4458,6 @@
    "Origin": "Michigan",
    "Destination": "Hawaii",
    "Total": 165
- },
- {
-   "Origin": "Puerto Rico",
-   "Destination": "Missouri",
-   "Total": 164
  },
  {
    "Origin": "Ohio",
@@ -4655,13 +4475,13 @@
    "Total": 161
  },
  {
-   "Origin": "Idaho",
-   "Destination": "Nebraska",
+   "Origin": "Tennessee",
+   "Destination": "Hawaii",
    "Total": 161
  },
  {
-   "Origin": "Tennessee",
-   "Destination": "Hawaii",
+   "Origin": "Idaho",
+   "Destination": "Nebraska",
    "Total": 161
  },
  {
@@ -4690,11 +4510,6 @@
    "Total": 158
  },
  {
-   "Origin": "Maine",
-   "Destination": "Texas",
-   "Total": 157
- },
- {
    "Origin": "Mississippi",
    "Destination": "District of Columbia",
    "Total": 157
@@ -4705,13 +4520,18 @@
    "Total": 157
  },
  {
-   "Origin": "Utah",
-   "Destination": "Ohio",
-   "Total": 156
+   "Origin": "Maine",
+   "Destination": "Texas",
+   "Total": 157
  },
  {
    "Origin": "New Mexico",
    "Destination": "Arkansas",
+   "Total": 156
+ },
+ {
+   "Origin": "Utah",
+   "Destination": "Ohio",
    "Total": 156
  },
  {
@@ -4745,19 +4565,9 @@
    "Total": 152
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Montana",
-   "Total": 151
- },
- {
    "Origin": "Alaska",
    "Destination": "New Hampshire",
    "Total": 151
- },
- {
-   "Origin": "Maine",
-   "Destination": "Montana",
-   "Total": 150
  },
  {
    "Origin": "Connecticut",
@@ -4765,9 +4575,9 @@
    "Total": 150
  },
  {
-   "Origin": "Louisiana",
-   "Destination": "Vermont",
-   "Total": 149
+   "Origin": "Maine",
+   "Destination": "Montana",
+   "Total": 150
  },
  {
    "Origin": "North Dakota",
@@ -4777,6 +4587,11 @@
  {
    "Origin": "Massachusetts",
    "Destination": "Maryland",
+   "Total": 149
+ },
+ {
+   "Origin": "Louisiana",
+   "Destination": "Vermont",
    "Total": 149
  },
  {
@@ -4795,6 +4610,11 @@
    "Total": 146
  },
  {
+   "Origin": "Iowa",
+   "Destination": "Louisiana",
+   "Total": 145
+ },
+ {
    "Origin": "Connecticut",
    "Destination": "Mississippi",
    "Total": 145
@@ -4802,11 +4622,6 @@
  {
    "Origin": "New York",
    "Destination": "West Virginia",
-   "Total": 145
- },
- {
-   "Origin": "Iowa",
-   "Destination": "Louisiana",
    "Total": 145
  },
  {
@@ -4825,13 +4640,13 @@
    "Total": 140
  },
  {
-   "Origin": "District of Columbia",
-   "Destination": "Ohio",
+   "Origin": "Minnesota",
+   "Destination": "Idaho",
    "Total": 139
  },
  {
-   "Origin": "Minnesota",
-   "Destination": "Idaho",
+   "Origin": "District of Columbia",
+   "Destination": "Ohio",
    "Total": 139
  },
  {
@@ -4855,23 +4670,23 @@
    "Total": 136
  },
  {
-   "Origin": "New Jersey",
-   "Destination": "South Dakota",
-   "Total": 135
- },
- {
    "Origin": "Washington",
    "Destination": "Missouri",
    "Total": 135
  },
  {
-   "Origin": "Oklahoma",
-   "Destination": "Wisconsin",
-   "Total": 134
+   "Origin": "New Jersey",
+   "Destination": "South Dakota",
+   "Total": 135
  },
  {
    "Origin": "Connecticut",
    "Destination": "Utah",
+   "Total": 134
+ },
+ {
+   "Origin": "Oklahoma",
+   "Destination": "Wisconsin",
    "Total": 134
  },
  {
@@ -4880,18 +4695,13 @@
    "Total": 132
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "New Mexico",
-   "Total": 131
- },
- {
    "Origin": "New Mexico",
    "Destination": "Maryland",
    "Total": 131
  },
  {
-   "Origin": "South Dakota",
-   "Destination": "Virginia",
+   "Origin": "Indiana",
+   "Destination": "Idaho",
    "Total": 130
  },
  {
@@ -4900,8 +4710,8 @@
    "Total": 130
  },
  {
-   "Origin": "Indiana",
-   "Destination": "Idaho",
+   "Origin": "South Dakota",
+   "Destination": "Virginia",
    "Total": 130
  },
  {
@@ -4930,13 +4740,13 @@
    "Total": 126
  },
  {
-   "Origin": "Oklahoma",
-   "Destination": "North Dakota",
+   "Origin": "North Dakota",
+   "Destination": "New Mexico",
    "Total": 126
  },
  {
-   "Origin": "North Dakota",
-   "Destination": "New Mexico",
+   "Origin": "Oklahoma",
+   "Destination": "North Dakota",
    "Total": 126
  },
  {
@@ -4945,8 +4755,8 @@
    "Total": 126
  },
  {
-   "Origin": "Montana",
-   "Destination": "Tennessee",
+   "Origin": "Indiana",
+   "Destination": "Montana",
    "Total": 125
  },
  {
@@ -4955,28 +4765,23 @@
    "Total": 125
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "Vermont",
-   "Total": 125
- },
- {
-   "Origin": "Indiana",
-   "Destination": "Montana",
-   "Total": 125
- },
- {
    "Origin": "Kansas",
    "Destination": "Ohio",
    "Total": 125
  },
  {
-   "Origin": "Louisiana",
-   "Destination": "Nebraska",
-   "Total": 124
+   "Origin": "Montana",
+   "Destination": "Tennessee",
+   "Total": 125
  },
  {
    "Origin": "Ohio",
    "Destination": "California",
+   "Total": 124
+ },
+ {
+   "Origin": "Louisiana",
+   "Destination": "Nebraska",
    "Total": 124
  },
  {
@@ -4995,8 +4800,8 @@
    "Total": 123
  },
  {
-   "Origin": "Alaska",
-   "Destination": "West Virginia",
+   "Origin": "Indiana",
+   "Destination": "Connecticut",
    "Total": 121
  },
  {
@@ -5005,8 +4810,8 @@
    "Total": 121
  },
  {
-   "Origin": "Indiana",
-   "Destination": "Connecticut",
+   "Origin": "Montana",
+   "Destination": "Louisiana",
    "Total": 121
  },
  {
@@ -5015,14 +4820,19 @@
    "Total": 121
  },
  {
-   "Origin": "Montana",
-   "Destination": "Louisiana",
-   "Total": 121
- },
- {
    "Origin": "Georgia",
    "Destination": "South Dakota",
    "Total": 121
+ },
+ {
+   "Origin": "Alaska",
+   "Destination": "West Virginia",
+   "Total": 121
+ },
+ {
+   "Origin": "Montana",
+   "Destination": "North Carolina",
+   "Total": 119
  },
  {
    "Origin": "Idaho",
@@ -5031,8 +4841,8 @@
  },
  {
    "Origin": "Montana",
-   "Destination": "North Carolina",
-   "Total": 119
+   "Destination": "Massachusetts",
+   "Total": 117
  },
  {
    "Origin": "District of Columbia",
@@ -5042,11 +4852,6 @@
  {
    "Origin": "Minnesota",
    "Destination": "West Virginia",
-   "Total": 117
- },
- {
-   "Origin": "Montana",
-   "Destination": "Massachusetts",
    "Total": 117
  },
  {
@@ -5075,13 +4880,13 @@
    "Total": 112
  },
  {
-   "Origin": "Idaho",
-   "Destination": "Oklahoma",
+   "Origin": "Delaware",
+   "Destination": "Maine",
    "Total": 111
  },
  {
-   "Origin": "Delaware",
-   "Destination": "Maine",
+   "Origin": "Idaho",
+   "Destination": "Oklahoma",
    "Total": 111
  },
  {
@@ -5095,13 +4900,13 @@
    "Total": 110
  },
  {
-   "Origin": "Maine",
-   "Destination": "Maryland",
+   "Origin": "Alaska",
+   "Destination": "Kentucky",
    "Total": 109
  },
  {
-   "Origin": "Alaska",
-   "Destination": "Kentucky",
+   "Origin": "Maine",
+   "Destination": "Maryland",
    "Total": 109
  },
  {
@@ -5120,11 +4925,6 @@
    "Total": 107
  },
  {
-   "Origin": "Arkansas",
-   "Destination": "New Hampshire",
-   "Total": 107
- },
- {
    "Origin": "Iowa",
    "Destination": "Mississippi",
    "Total": 107
@@ -5132,6 +4932,11 @@
  {
    "Origin": "New Hampshire",
    "Destination": "Missouri",
+   "Total": 107
+ },
+ {
+   "Origin": "Arkansas",
+   "Destination": "New Hampshire",
    "Total": 107
  },
  {
@@ -5150,19 +4955,14 @@
    "Total": 105
  },
  {
-   "Origin": "Montana",
-   "Destination": "Nebraska",
-   "Total": 104
- },
- {
    "Origin": "West Virginia",
    "Destination": "Louisiana",
    "Total": 104
  },
  {
-   "Origin": "Puerto Rico",
-   "Destination": "West Virginia",
-   "Total": 103
+   "Origin": "Montana",
+   "Destination": "Nebraska",
+   "Total": 104
  },
  {
    "Origin": "Montana",
