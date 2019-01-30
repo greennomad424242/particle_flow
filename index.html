@@ -21,6 +21,8 @@
 <script>
 
 
+//TO DO clickable popup
+
 
 var x_color = '#cc0000';
 var text_color = '#EC7523';
@@ -50,7 +52,7 @@ var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 var texture_in, texture_inter;
 var population, state_locations, migration;
 var state_data = [];
-
+var mouse = new THREE.Vector2();
 
 //TO DO:
 //   - fix default camera angle
@@ -66,10 +68,10 @@ var state_data = [];
 
 
 var height_to_radius_ratio = 3;
-var x_spread = 3.5;
-var z_spread = 2;
+var x_spread = 3.8;
+var z_spread = 2.2;
 var z_shift = 50;
-var num_tubes =20;
+var num_tubes =10;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -84,8 +86,9 @@ var texture_out;
 var min_x=0,min_y=0, min_z =0;
 var max_x=500, max_y=500, max_z=500;
 
+var anisotropy_inter = 1;
 var tube_width_multiplier;
-var volume_multiplier = 1/150000;
+var volume_multiplier = 1/15000;
 
 var min_flow = 1000000000;
 var max_flow = 0;
@@ -210,6 +213,12 @@ var fontLoader = new THREE.FontLoader();
 });
 
 }
+
+function tubular(flow) {
+ var val = (flow - min_flow) * tube_width_multiplier + min_width;
+	return parseInt(val)
+ }
+
 function display(callback) {
 	//initial setup
  container = document.getElementById("main_area" );
@@ -217,7 +226,7 @@ function display(callback) {
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
-
+renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 
  //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
@@ -319,21 +328,25 @@ function display(callback) {
 
 // tube materials
 
- texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
-	texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set( 8,8);
- } );
 
-	texture_inter.anisotropy = 1;
-	material_inter = new THREE.MeshLambertMaterial( {
-	map: texture_inter,	 emissiveIntensity:0 } );
+
+	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
+	 texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set( 12,12);
+	 } );
+	 texture_inter.anisotropy = anisotropy_inter;
+ 	material_inter = new THREE.MeshLambertMaterial( {
+ 	map: texture_inter,	 emissiveIntensity:0 } );
+
+
 
 	interpage_group = new THREE.Group();
 
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
 	//	console.log(migration[q]);
+	  console.log(migration[q].Origin + " " + migration[q].Destination);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
 		});
@@ -353,15 +366,16 @@ function display(callback) {
 	 pointY.y =  y_from_pop(dest_page[0][1]) + dest_page[0][4]/4 ;
 	 pointY.z = z_from_long(dest_page[0][3]);
 
-   function tubular(flow) {
-    var val = (flow - min_flow) * tube_width_multiplier + min_width;
+	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
+   var repeat = Math.sqrt(distance);
+	console.log(repeat);
 
 
-		 return parseInt(val)
-	  }
+
+
    var tube_radius = tubular (migration[q].Total);
 		// create the tube using this special function (that gives it a curve)
-	 var cylinder_element =  cylinderMesh(pointX, pointY, material_inter, tube_radius );
+	 var cylinder_element =  custom_cylinderMesh(pointX, pointY, material_inter, tube_radius );
 	 instance = cylinder_element.clone();
  	 interpage_group.add(instance );
 	}
@@ -374,9 +388,14 @@ function add_interpages() {
     console.log(state_data);
 }
 
+function pick() {
+//TO DO: continue to copy text here
+
+
+}
 
 // this creates the curving tubes
-function cylinderMesh( point2, point1,material,tube_radius) {
+function custom_cylinderMesh( point2, point1,material,tube_radius) {
   var x_delta, y_delta, z_delta;
    // point1 is always the source
 
@@ -402,7 +421,9 @@ function cylinderMesh( point2, point1,material,tube_radius) {
 	else {
 		x_delta = safe_distance;
   }
-	var numPoints = 30;
+
+  var distance = parseInt(point1.distanceTo( point2 ));
+	var numPoints = distance /4;
 
 	// this creates the curvy path of the tube
 	path = [  point1,
@@ -411,13 +432,13 @@ function cylinderMesh( point2, point1,material,tube_radius) {
 		  mid_z+ z_delta ),
 	  point2
   ];
-
 	pathBase = new THREE.CatmullRomCurve3(path);
 
-
-
+  var tubularSegments = parseInt(distance/2)*3;
+	console.log(tubularSegments);
+  var radialSegments = 8;
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
-	var geometry = new THREE.TubeGeometry(pathBase, 64, tube_radius, 4);
+	var geometry = new THREE.TubeGeometry(pathBase, tubularSegments, tube_radius, radialSegments);
 	var mesh = new THREE.Mesh( geometry, material );
   return mesh;
 
@@ -455,11 +476,11 @@ function x_from_lat (lat)  {
 function render() {
 
 	controls.update();
-
+ 	pick();
   //  texture_in.offset.y += texture_in_offset;
   //	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
-		// X_text.lookAt( camera.position );
+  // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
 
 }
@@ -468,8 +489,6 @@ function animate() {
  requestAnimationFrame( animate );
   //console.log(camera.quaternion);
  render();
-
-
  text_group.children.forEach(
      function(pChild){
           pChild.quaternion.copy(camera.quaternion);
@@ -480,12 +499,19 @@ function animate() {
  //console.log(X_text.quaternion);
  //X_text.rotation.z = 0;
 	 controls.update();
-  console.log(camera.position.x, camera.position.y, camera.position.z);
+  //console.log(camera.position.x, camera.position.y, camera.position.z);
 	var vector = new THREE.Vector3( 0, 0, -1 );
 	vector.applyQuaternion( camera.quaternion );
-console.log("vec: "+ vector.x + vector.y +vector.z);
+//console.log("vec: "+ vector.x + vector.y +vector.z);
  //console.log(X_text);
 
+}
+
+
+function onMouseMove( e ) {
+	event.preventDefault();
+	mouse.x = e.clientX -200;
+	mouse.y = e.clientY;
 }
 
 </script>
