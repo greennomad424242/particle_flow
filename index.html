@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Interactive Cubes</title>
+		<title>Population Flows</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="three.js"></script>
@@ -57,13 +57,19 @@ var state_data = [];
 //   - clean up the variables around scaling the x,y,z, and flow
 //
 
+//TO DO: net growth is color of box [optional]
+//sidebar of tables
+//
+
 //  Configuration options
 
 
 
 var height_to_radius_ratio = 3;
-
-var num_tubes =10;
+var x_spread = 3.5;
+var z_spread = 2;
+var z_shift = 50;
+var num_tubes =20;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -79,7 +85,7 @@ var min_x=0,min_y=0, min_z =0;
 var max_x=500, max_y=500, max_z=500;
 
 var tube_width_multiplier;
-var volume_multiplier = 1/15000;
+var volume_multiplier = 1/150000;
 
 var min_flow = 1000000000;
 var max_flow = 0;
@@ -430,7 +436,7 @@ function tube_radius_cal(flow_val) {
  // this translates the state's lat and long into x,y,z coordinates
 function x_from_lat (lat)  {
  	var q =  lat - (min_lat + (max_lat - min_lat)/2);
- 	return q
+ 	return q*x_spread
  }
 
  function y_from_pop (population)  {
@@ -441,7 +447,7 @@ function x_from_lat (lat)  {
  function z_from_long (long)  {
   average_long = (max_long - min_long)/2 + min_long;
 	m = (long - average_long)*2;
-	return -1*m -15;
+	return -z_spread*m -  z_shift;
  }
 
 
