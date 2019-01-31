@@ -6,16 +6,24 @@ html, body {
 
 
 #sidebar {
-  margin:10px 10px 0 10px;
-  width: 150px;
+ margin:3px 3px 0 3px;
+ padding-top: 5px;
+ width: 200px;
  height: 100%;
- border-right: 1px solid black;
+
    float:left;
 }
 
+#state_name {
+
+   font: 600 18px/18px Roboto,sans-serif;
+}
+
+#flow_in { color: #9CC47F; }
+#flow_out { color: #E3AF6F; }
+
+
 #main_area {
-
-
   margin-left:0;
   float:left;
 }

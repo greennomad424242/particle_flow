@@ -15,13 +15,13 @@
 		<link rel='stylesheet' href='styles.css'/>
 	</head>
 	<body>
-<div id="sidebar">hi</div>
+<div id="sidebar"></div>
      <div id="main_area">
   </div>
 <script>
 
 
-//TO DO clickable popup
+
 
 
 var x_color = '#cc0000';
@@ -68,7 +68,7 @@ var intersects =[];
 //  Configuration options
 
 
-
+var state_viewed;
 var height_to_radius_ratio = 3;
 var x_spread = 3.8;
 var z_spread = 2.2;
@@ -107,6 +107,19 @@ var max_pop = 0;
 //
 //   end variables
 //
+
+
+
+function commafy( num ) {
+  var str = num.toString().split('.');
+  if (str[0].length >= 3) {
+      str[0] = str[0].replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+  }
+  if (str[1] && str[1].length >= 3) {
+      str[1] = str[1].replace(/(\d{3})/g, '$1 ');
+  }
+  return str.join('.');
+}
 
 //used to parse json objects
 function getObjects(obj, key, val) {
@@ -229,18 +242,49 @@ function display(callback) {
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
 
+
+ //
+ // Sidebar functionality
+ //
  document.addEventListener( 'mousemove', function( event ) {
  mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
-  mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
-
- 	raycaster.setFromCamera( mouse, camera );
-
- 	intersects = raycaster.intersectObjects( scene.children[2].children );
+ mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+ raycaster.setFromCamera( mouse, camera );
+ intersects = raycaster.intersectObjects( scene.children[2].children );
 
  	for (t=0;t< intersects.length; t++ ) {
- 	    if (intersects[t].object.type =="Mesh")  {
- 		  console.log(intersects[t].object.userData.name);
-     }
+	  if (intersects[t].object.type =="Mesh")  {
+		  selected_state = intersects[t].object.userData.name;
+
+      // avoid reprinting
+			if (state_viewed != selected_state) {
+			  state_viewed  =	selected_state;
+        var state_info = $.grep(state_data, function(v) {
+	        return v[0] ==  selected_state ;
+        });
+		  	console.log(state_info[0] );
+
+        var flow_in = $.grep(migration, function(v) {
+		       return  ((v.Destination ==  selected_state) || (v.Origin ==  selected_state))  ;
+        });
+
+        var html =  "<div id='state_name'>" + selected_state + "</div>Population: " +  commafy(state_info[0][1]) + "<br><br>Migration flows:<table> " ;
+				for (z = 0; z< flow_in.length  && z<40; z++) {
+
+					   if (flow_in[z].Origin  != selected_state) {
+                  html += "<tr id= 'flow_in'><td>from </td><td>" + flow_in[z].Origin + "</td><td> "+ commafy(flow_in[z].Total) + "</td></tr>";
+				   	}
+						else {
+   html += "<tr id = 'flow_out'><td style='text-align: right'>to </td><td>" + flow_in[z].Destination + "</td><td> "+ commafy(flow_in[z].Total) + "</td></tr>";
+						}
+
+				}
+			  html +="</table>";
+				document.getElementById("sidebar").innerHTML = html;
+
+		}
+	  }
+
  	}
  }, false );
 
@@ -345,19 +389,15 @@ function display(callback) {
 
 // tube materials
 
-
-
 	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		//texture.repeat.set( 12,12);
 	 } );
 
-
 	 texture_inter.anisotropy = anisotropy_inter;
 
-
-	interpage_group = new THREE.Group();
+	 interpage_group = new THREE.Group();
 
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
@@ -384,12 +424,12 @@ function display(callback) {
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
    var repeat = distance/8;
-	console.log(repeat);
+	 //console.log(repeat);
 
-texture_inter.repeat.set( 8,4);
+   texture_inter.repeat.set( 8,4);
 
-material_inter = new THREE.MeshLambertMaterial( {
-map: texture_inter,	 emissiveIntensity:0 } );
+   material_inter = new THREE.MeshLambertMaterial( {
+       map: texture_inter,	 emissiveIntensity:0 } );
 
    var tube_radius = tubular (migration[q].Total);
 		// create the tube using this special function (that gives it a curve)
@@ -406,11 +446,7 @@ function add_interpages() {
     //console.log(state_data);
 }
 
-function pick() {
-//TO DO: continue to copy text here
 
-
-}
 
 // this creates the curving tubes
 function custom_cylinderMesh( point2, point1,material,tube_radius) {
@@ -494,19 +530,11 @@ function x_from_lat (lat)  {
 function render() {
 
 // calculate objects intersecting the picking ray var intersects =
-raycaster.setFromCamera( mouse, camera );
-
-
+  raycaster.setFromCamera( mouse, camera );
 	controls.update();
   texture_inter.offset.x += texture_inter_offset;
-
-
-
   // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
-
-
-
 
 }
 
@@ -519,16 +547,10 @@ function animate() {
           pChild.quaternion.copy(camera.quaternion);
      }
  );
-
- //X_text.applyQuaternion(camera.quaternion );
- //console.log(X_text.quaternion);
- //X_text.rotation.z = 0;
 	 controls.update();
-  //console.log(camera.position.x, camera.position.y, camera.position.z);
-	var vector = new THREE.Vector3( 0, 0, -1 );
-	vector.applyQuaternion( camera.quaternion );
-//console.log("vec: "+ vector.x + vector.y +vector.z);
- //console.log(X_text);
+	 var vector = new THREE.Vector3( 0, 0, -1 );
+	 vector.applyQuaternion( camera.quaternion );
+
 
 }
 
