@@ -46,14 +46,16 @@ var picked_var;
 var container, camera, controls, scene, renderer,
  num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
 var highlightBox, orbit_default;
-var mouse = new THREE.Vector2();
+
 var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 var texture_in, texture_inter;
 var population, state_locations, migration;
 var state_data = [];
-var mouse = new THREE.Vector2();
 
+var mouse = new THREE.Vector2();
+var raycaster = new THREE.Raycaster();
+var intersects =[];
 //TO DO:
 //   - fix default camera angle
 //   - clean up the variables around scaling the x,y,z, and flow
@@ -226,7 +228,23 @@ function display(callback) {
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
-renderer.domElement.addEventListener( 'mousemove', onMouseMove );
+
+ document.addEventListener( 'mousemove', function( event ) {
+
+ 	mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+   mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+
+ 	raycaster.setFromCamera( mouse, camera );
+
+ 	intersects = raycaster.intersectObjects( scene.children[2].children );
+
+ 	for (t=0;t< intersects.length; t++ ) {
+ 	    if (intersects[t].object.type =="Mesh")  {
+ 		  console.log(intersects[t].object.userData.name);
+     }
+ 	}
+ }, false );
+
 
  //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
@@ -259,7 +277,7 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 
 
  axis = new THREE.AxesHelper(axis_length);
- scene.add(axis);
+ //scene.add(axis);
 
 	//Lights
 
@@ -314,7 +332,7 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	cylinder.position.x = x_val;
 	cylinder.position.y = y_val;
 	cylinder.position.z = z_val;
-
+  cylinder.userData.name = state_data[k][0];
 	line.position.x = x_val;
 	line.position.y = y_val;
 	line.position.z = z_val;
@@ -333,12 +351,11 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set( 12,12);
+		//texture.repeat.set( 12,12);
 	 } );
-	 texture_inter.anisotropy = anisotropy_inter;
- 	material_inter = new THREE.MeshLambertMaterial( {
- 	map: texture_inter,	 emissiveIntensity:0 } );
 
+
+	 texture_inter.anisotropy = anisotropy_inter;
 
 
 	interpage_group = new THREE.Group();
@@ -346,7 +363,7 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
 	//	console.log(migration[q]);
-	  console.log(migration[q].Origin + " " + migration[q].Destination);
+	  //console.log(migration[q].Origin + " " + migration[q].Destination);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
 		});
@@ -367,11 +384,13 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	 pointY.z = z_from_long(dest_page[0][3]);
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
-   var repeat = Math.sqrt(distance);
+   var repeat = distance/8;
 	console.log(repeat);
 
+texture_inter.repeat.set( 8,4);
 
-
+material_inter = new THREE.MeshLambertMaterial( {
+map: texture_inter,	 emissiveIntensity:0 } );
 
    var tube_radius = tubular (migration[q].Total);
 		// create the tube using this special function (that gives it a curve)
@@ -385,7 +404,7 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 function add_interpages() {
     scene.add(interpage_group );
     animate() ;
-    console.log(state_data);
+    //console.log(state_data);
 }
 
 function pick() {
@@ -435,7 +454,7 @@ function custom_cylinderMesh( point2, point1,material,tube_radius) {
 	pathBase = new THREE.CatmullRomCurve3(path);
 
   var tubularSegments = parseInt(distance/2)*3;
-	console.log(tubularSegments);
+	// console.log(tubularSegments);
   var radialSegments = 8;
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubularSegments, tube_radius, radialSegments);
@@ -475,13 +494,20 @@ function x_from_lat (lat)  {
 
 function render() {
 
+// calculate objects intersecting the picking ray var intersects =
+raycaster.setFromCamera( mouse, camera );
+
+
 	controls.update();
- 	pick();
-  //  texture_in.offset.y += texture_in_offset;
-  //	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
+
+
+
   // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
+
+
+
 
 }
 
@@ -508,11 +534,9 @@ function animate() {
 }
 
 
-function onMouseMove( e ) {
-	event.preventDefault();
-	mouse.x = e.clientX -200;
-	mouse.y = e.clientY;
-}
+
+
+
 
 </script>
 </body>
