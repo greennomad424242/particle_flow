@@ -15,8 +15,8 @@
 		<link rel='stylesheet' href='styles.css'/>
 	</head>
 	<body>
-		<body>
-     <div  id="main_area">
+<div id="sidebar">hi</div>
+     <div id="main_area">
   </div>
 <script>
 
@@ -38,7 +38,7 @@ var angle = 1;
 var delta =  0.005;
 var pathBase, path;
 var picked_length = 0;
-var width = window.innerWidth;
+var width = window.innerWidth-250;
 var height = window.innerHeight;
 var axis_length = 100;
 var X_text,Y_text, Z_text;
@@ -230,9 +230,8 @@ function display(callback) {
  container.appendChild( renderer.domElement );
 
  document.addEventListener( 'mousemove', function( event ) {
-
- 	mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
-   mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+ mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+  mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
  	raycaster.setFromCamera( mouse, camera );
 
