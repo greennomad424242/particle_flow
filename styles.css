@@ -8,15 +8,39 @@ html, body {
 #sidebar {
  margin:3px 3px 0 3px;
  padding-top: 5px;
+
  width: 200px;
  height: 100%;
-
-   float:left;
+ float:left;
 }
+#short {height:3px;}
+
 
 #state_name {
-
    font: 600 18px/18px Roboto,sans-serif;
+   padding-left: 5px;
+}
+#red_indicator {
+
+height: 2px;
+background-color: #9CC47F;
+
+}
+#green_indicator {
+
+height: 2px;
+background-color:  #E3AF6F ;
+
+}
+#flow_text
+{
+  font: 300 15px/18px Roboto,sans-serif;
+  padding-left: 5px;
+
+}
+
+#population_name {
+   padding-left: 5px;
 }
 
 #flow_in { color: #9CC47F; }
