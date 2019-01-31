@@ -23,13 +23,13 @@ html, body {
 #red_indicator {
 
 height: 2px;
-background-color: #9CC47F;
+background-color: #E3AF6F;
 
 }
 #green_indicator {
 
 height: 2px;
-background-color:  #E3AF6F ;
+background-color:  #9CC47F;
 
 }
 #flow_text

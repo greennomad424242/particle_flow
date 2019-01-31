@@ -144,7 +144,7 @@ var quaternion = new THREE.Quaternion();
 // get the state information (population, lat, long)
 var jqxhr = $.getJSON( "capitals.json", function(data) {
   state_locations = data;
-	var population = $.getJSON( "population.json", function(data) {
+	var population = $.getJSON( "population-change.json", function(data) {
 	  population = data;
     for (j=0; j < population.length ; j++)  {
 			var state_name = population[j].state;
@@ -153,6 +153,8 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
       var lat = Math.abs(parseFloat(temp[0].lat));
 			var long = Math.abs(parseFloat(temp[0].long));
 			var pop = population[j].population;
+			var per_change = population[j].per_change;
+			var per_nation = population[j].per_nation;
 
 			 // find the minimum values to allow shifting later on
       if (pop > max_pop)  {
@@ -175,7 +177,7 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			if (long > max_long) {
         max_long = long;
 			}
-			state_data.push ([state_name ,pop, lat, long]);
+			state_data.push ([state_name ,pop, lat, long, per_change, per_nation]);
 		}
 
 		var jqxhr = $.getJSON( "migration.json", function(data) {
@@ -232,6 +234,7 @@ function tubular(flow) {
  var val = (flow - min_flow) * tube_width_multiplier + min_width;
 	return parseInt(val)
  }
+
 
 function display(callback) {
 	//initial setup
@@ -291,10 +294,12 @@ if  (intersects_state.length > 0 ) {
         });
 
 var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
-    console.log(max  );
+  //  console.log(max  );
 
 // find max flow in
-        var html =  "<div id='state_name'>" + selected_state + "</div><div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) + "</div><br><br>Migration flows: " ;
+        var html =  "<div id='state_name'>" + selected_state  + "</div>";
+       html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][5]*100) + "% of country)";
+        html +=  "<br><br>Change from 2010-2018: " + state_info[0][4] + "%</div><br><br>Migration flows:<p>" ;
 				for (z = 0; z< flow_in.length  && z<40; z++) {
              var percentile = flow_in[z].Total/max*100;
 					   if (flow_in[z].Origin  != selected_state) {
@@ -352,6 +357,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
  scene = new THREE.Scene();
 
 
+
  axis = new THREE.AxesHelper(axis_length);
  //scene.add(axis);
 
@@ -376,16 +382,14 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
  page_group = new THREE.Group();
 
  const textureLoader = new THREE.TextureLoader();
- texture_page = textureLoader.load( 'brick.png', function ( texture ) {
+ /*texture_page = textureLoader.load( 'brick.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 	 texture.wrapT = THREE.RepeatWrapping;
 	 texture.repeat.set( 2, 2);
  } );
 
- texture_page.anisotropy = 1;
- material_page = new THREE.MeshLambertMaterial( {
-	 map: texture_page,	 emissiveIntensity:0
- } );
+ texture_page.anisotropy = 1; */
+
 
  // create the pages
  for (var k=0; k<state_data.length; k++) {
@@ -397,9 +401,29 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	var y_val= y_from_pop(state_data[k][1]);
 	var z_val =z_from_long(state_data[k][3]);
 
+
+
   page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
+	var per_change = state_data[k][5];
+	var per_nation = state_data[k][6];
+	console.log(state_data[k]);
   //console.log(state_data[k]);
 	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
+
+  if (per_change > 0 ) {
+    material_page = new THREE.MeshLambertMaterial( {
+          color:  0x4F8DAA ,  //0x92D698,  //green
+	        emissiveIntensity:0
+   	} );
+  } else {
+		material_page = new THREE.MeshLambertMaterial( {
+					color: 0xD6B492,  // orange
+					emissiveIntensity:0
+		} );
+  }
+
+
+    //material_page.color =    '0x4F8DAA';
 
 	var cylinder = new THREE.Mesh( geometry, material_page );
 	var edges = new THREE.EdgesGeometry( geometry );
