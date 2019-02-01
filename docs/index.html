@@ -7,7 +7,6 @@
 		<script src="three.js"></script>
 		<link rel="shortcut icon" href="favicon.ico">
 		<script src="TrackballControls.js"></script>
-
 		<script src="ParametricGeometries.js"></script>
 		<script src="BufferGeometryUtils.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -20,43 +19,50 @@
   </div>
 <script>
 
+// main area width and height
+var width = window.innerWidth-250;
+var height = window.innerHeight;
 
+var DataFrame = dfjs.DataFrame;
+var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 
-
-
-var x_color = '#cc0000';
 var text_color = '#EC7523';
+
+// Axis related
+var x_color = '#cc0000';
 var y_color  = '#009900' ;
 var z_color  = '#0000e6';
+var axis_length = 100;
+var X_text,Y_text, Z_text;
+
+// used for orbit controls
 var rotSpeed =0;
 var opacity_value = 1;
 var rotateSpeed =2;
 var zoomSpeed=4;
 var panSpeed=2;
 var angle = 1;
-var flow_viewed ="";
+
 
 var delta =  0.005;
+
+// used for the curved tubes
 var pathBase, path;
+
+
 var picked_length = 0;
-var width = window.innerWidth-250;
-var height = window.innerHeight;
-var axis_length = 100;
-var X_text,Y_text, Z_text;
+
+
+
 var picked_var;
-var container, camera, controls, scene, renderer,
- num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
-var highlightBox, orbit_default;
+var container, camera, controls, scene, renderer, num_rows,page_inbound, interpage_traffic, actual_array, pickingTexture, pickingScene, group, highlightBox, orbit_default;
+var intersects =[],  pickingData = [], state_data=[] ;
+var texture_in, texture_inter, population, state_locations, migration;
 
-var DataFrame = dfjs.DataFrame;
-var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
-var texture_in, texture_inter;
-var population, state_locations, migration;
-var state_data = [];
-
+var flow_viewed ="";
 var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
-var intersects =[];
+
 //TO DO:
 //   - fix default camera angle
 //   - clean up the variables around scaling the x,y,z, and flow
