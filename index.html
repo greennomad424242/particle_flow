@@ -72,9 +72,9 @@ var intersects =[];
 var state_viewed;
 var height_to_radius_ratio = 3;
 var x_spread = 3.8;
-var z_spread = 2.2;
+var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =30;
+var num_tubes =80;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -401,14 +401,15 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	var y_val= y_from_pop(state_data[k][1]);
 	var z_val =z_from_long(state_data[k][3]);
 
-
-
   page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
 	var per_change = state_data[k][5];
 	var per_nation = state_data[k][6];
 	console.log(state_data[k]);
   //console.log(state_data[k]);
+
+	//TO DO : add some shading/color to back sidebar
 	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
+// TO DO: figure out why this color change isn't working
 
   if (per_change > 0 ) {
     material_page = new THREE.MeshLambertMaterial( {

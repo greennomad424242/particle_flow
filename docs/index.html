@@ -15,13 +15,13 @@
 		<link rel='stylesheet' href='styles.css'/>
 	</head>
 	<body>
-		<body>
-     <div  id="main_area">
+<div id="sidebar"></div>
+     <div id="main_area">
   </div>
 <script>
 
 
-//TO DO clickable popup
+
 
 
 var x_color = '#cc0000';
@@ -34,11 +34,12 @@ var rotateSpeed =2;
 var zoomSpeed=4;
 var panSpeed=2;
 var angle = 1;
+var flow_viewed ="";
 
 var delta =  0.005;
 var pathBase, path;
 var picked_length = 0;
-var width = window.innerWidth;
+var width = window.innerWidth-250;
 var height = window.innerHeight;
 var axis_length = 100;
 var X_text,Y_text, Z_text;
@@ -46,14 +47,16 @@ var picked_var;
 var container, camera, controls, scene, renderer,
  num_rows,page_inbound , interpage_traffic, actual_array, pickingData = [], pickingTexture, pickingScene, X_text,Y_text, Z_text, camera,group;
 var highlightBox, orbit_default;
-var mouse = new THREE.Vector2();
+
 var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 var texture_in, texture_inter;
 var population, state_locations, migration;
 var state_data = [];
-var mouse = new THREE.Vector2();
 
+var mouse = new THREE.Vector2();
+var raycaster = new THREE.Raycaster();
+var intersects =[];
 //TO DO:
 //   - fix default camera angle
 //   - clean up the variables around scaling the x,y,z, and flow
@@ -66,12 +69,12 @@ var mouse = new THREE.Vector2();
 //  Configuration options
 
 
-
+var state_viewed;
 var height_to_radius_ratio = 3;
 var x_spread = 3.8;
-var z_spread = 2.2;
+var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =10;
+var num_tubes =80;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -106,6 +109,19 @@ var max_pop = 0;
 //   end variables
 //
 
+
+
+function commafy( num ) {
+  var str = num.toString().split('.');
+  if (str[0].length >= 3) {
+      str[0] = str[0].replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+  }
+  if (str[1] && str[1].length >= 3) {
+      str[1] = str[1].replace(/(\d{3})/g, '$1 ');
+  }
+  return str.join('.');
+}
+
 //used to parse json objects
 function getObjects(obj, key, val) {
     var objects = [];
@@ -128,7 +144,7 @@ var quaternion = new THREE.Quaternion();
 // get the state information (population, lat, long)
 var jqxhr = $.getJSON( "capitals.json", function(data) {
   state_locations = data;
-	var population = $.getJSON( "population.json", function(data) {
+	var population = $.getJSON( "population-change.json", function(data) {
 	  population = data;
     for (j=0; j < population.length ; j++)  {
 			var state_name = population[j].state;
@@ -137,6 +153,8 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
       var lat = Math.abs(parseFloat(temp[0].lat));
 			var long = Math.abs(parseFloat(temp[0].long));
 			var pop = population[j].population;
+			var per_change = population[j].per_change;
+			var per_nation = population[j].per_nation;
 
 			 // find the minimum values to allow shifting later on
       if (pop > max_pop)  {
@@ -159,7 +177,7 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			if (long > max_long) {
         max_long = long;
 			}
-			state_data.push ([state_name ,pop, lat, long]);
+			state_data.push ([state_name ,pop, lat, long, per_change, per_nation]);
 		}
 
 		var jqxhr = $.getJSON( "migration.json", function(data) {
@@ -187,11 +205,9 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 });
 
 function text_display (q) {
-
-
-var fontLoader = new THREE.FontLoader();
-	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
-		var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
+   var fontLoader = new THREE.FontLoader();
+  	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
+	  	var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
 		 size: text_size,
 		 height: text_height,
 		 curveSegments: 1,
@@ -219,6 +235,7 @@ function tubular(flow) {
 	return parseInt(val)
  }
 
+
 function display(callback) {
 	//initial setup
  container = document.getElementById("main_area" );
@@ -226,7 +243,89 @@ function display(callback) {
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
-renderer.domElement.addEventListener( 'mousemove', onMouseMove );
+
+
+ //
+ // Sidebar functionality
+ //
+ document.addEventListener( 'mousemove', function( event ) {
+ mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+ mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+ raycaster.setFromCamera( mouse, camera );
+ intersects_state = raycaster.intersectObjects( scene.children[2].children );
+ intersects_flow = raycaster.intersectObjects( scene.children[3].children );
+
+ if  (intersects_flow.length > 0 ) {
+ for (t=0;t< intersects_flow.length; t++ ) {
+   if (intersects_flow[t].object.type =="Mesh")  {
+
+			selected_flow = intersects_flow[t].object.userData.src_name + intersects_flow[t].object.userData.dest_name;
+
+			    // if already viewed
+      if (flow_viewed != selected_flow) {
+			  flow_viewed = selected_flow;
+        from_State = intersects_flow[t].object.userData.src_name;
+				to_State = intersects_flow[t].object.userData.dest_name;
+				var total2 = intersects_flow[t].object.userData.total;
+			//	console.log(total2);
+      // total = intersects_flow[t].object.userData.destination;
+			var html =  "<div id='flow_text'>" + from_State  + " -> " + to_State  + ": " + commafy(total2)  +"</div>" ;
+			document.getElementById("sidebar").innerHTML = html;
+     }
+   }
+  }
+
+}  else { flow_viewed ="";}
+if  (intersects_state.length > 0 ) {
+ 	for (t=0;t< intersects_state.length; t++ ) {
+	  if (intersects_state[t].object.type =="Mesh")  {
+		  selected_state = intersects_state[t].object.userData.name;
+
+      // avoid reprinting
+			if (state_viewed != selected_state) {
+			  state_viewed  =	selected_state;
+        var state_info = $.grep(state_data, function(v) {
+	        return v[0] ==  selected_state ;
+        });
+		  //	console.log(state_info[0] );
+
+        var flow_in = $.grep(migration, function(v) {
+		       return  ((v.Destination ==  selected_state) || (v.Origin ==  selected_state))  ;
+        });
+
+var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
+  //  console.log(max  );
+
+// find max flow in
+        var html =  "<div id='state_name'>" + selected_state  + "</div>";
+       html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][5]*100) + "% of country)";
+        html +=  "<br><br>Change from 2010-2018: " + state_info[0][4] + "%</div><br><br>Migration flows:<p>" ;
+				for (z = 0; z< flow_in.length  && z<40; z++) {
+             var percentile = flow_in[z].Total/max*100;
+					   if (flow_in[z].Origin  != selected_state) {
+							 	html += "<div id='green_indicator' style='width:";
+								html +=  percentile ;
+								html += "%'>  </div>";
+                  html += "<table><tr id= 'flow_in'><td>from </td><td>" + flow_in[z].Origin + "</td><td> "+ commafy(flow_in[z].Total) + "</td></tr></table>";
+				   	}
+						else {
+							html += "<div id='red_indicator' style='width:";
+							html +=  percentile ;
+							html += "%'>  </div>";
+   html += "<table><tr id = 'flow_out'><td style='text-align: right'>to </td><td>" + flow_in[z].Destination + "</td><td> "+ commafy(flow_in[z].Total) + "</td></tr></table>";
+						}
+
+				}
+			  html +="";
+				document.getElementById("sidebar").innerHTML = html;
+
+		}
+	  }
+
+ 	}
+} else {  state_viewed  =""}
+ }, false );
+
 
  //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
@@ -258,8 +357,9 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
  scene = new THREE.Scene();
 
 
+
  axis = new THREE.AxesHelper(axis_length);
- scene.add(axis);
+ //scene.add(axis);
 
 	//Lights
 
@@ -282,16 +382,14 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
  page_group = new THREE.Group();
 
  const textureLoader = new THREE.TextureLoader();
- texture_page = textureLoader.load( 'brick.png', function ( texture ) {
+ /*texture_page = textureLoader.load( 'brick.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 	 texture.wrapT = THREE.RepeatWrapping;
 	 texture.repeat.set( 2, 2);
  } );
 
- texture_page.anisotropy = 1;
- material_page = new THREE.MeshLambertMaterial( {
-	 map: texture_page,	 emissiveIntensity:0
- } );
+ texture_page.anisotropy = 1; */
+
 
  // create the pages
  for (var k=0; k<state_data.length; k++) {
@@ -304,8 +402,29 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	var z_val =z_from_long(state_data[k][3]);
 
   page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
+	var per_change = state_data[k][5];
+	var per_nation = state_data[k][6];
+	console.log(state_data[k]);
   //console.log(state_data[k]);
+
+	//TO DO : add some shading/color to back sidebar
 	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
+// TO DO: figure out why this color change isn't working
+
+  if (per_change > 0 ) {
+    material_page = new THREE.MeshLambertMaterial( {
+          color:  0x4F8DAA ,  //0x92D698,  //green
+	        emissiveIntensity:0
+   	} );
+  } else {
+		material_page = new THREE.MeshLambertMaterial( {
+					color: 0xD6B492,  // orange
+					emissiveIntensity:0
+		} );
+  }
+
+
+    //material_page.color =    '0x4F8DAA';
 
 	var cylinder = new THREE.Mesh( geometry, material_page );
 	var edges = new THREE.EdgesGeometry( geometry );
@@ -314,7 +433,7 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	cylinder.position.x = x_val;
 	cylinder.position.y = y_val;
 	cylinder.position.z = z_val;
-
+  cylinder.userData.name = state_data[k][0];
 	line.position.x = x_val;
 	line.position.y = y_val;
 	line.position.z = z_val;
@@ -328,25 +447,18 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 
 // tube materials
 
-
-
 	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set( 12,12);
+	 texture.wrapT = THREE.RepeatWrapping;
+		//texture.repeat.set( 12,12);
 	 } );
+
 	 texture_inter.anisotropy = anisotropy_inter;
- 	material_inter = new THREE.MeshLambertMaterial( {
- 	map: texture_inter,	 emissiveIntensity:0 } );
 
-
-
-	interpage_group = new THREE.Group();
+	 interpage_group = new THREE.Group();
 
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
-	//	console.log(migration[q]);
-	  console.log(migration[q].Origin + " " + migration[q].Destination);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
 		});
@@ -367,15 +479,17 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 	 pointY.z = z_from_long(dest_page[0][3]);
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
-   var repeat = Math.sqrt(distance);
-	console.log(repeat);
+   var repeat = distance/8;
+	 //console.log(repeat);
 
+   texture_inter.repeat.set( 8,4);
 
-
+   material_inter = new THREE.MeshLambertMaterial( {
+       map: texture_inter,	 emissiveIntensity:0 } );
 
    var tube_radius = tubular (migration[q].Total);
 		// create the tube using this special function (that gives it a curve)
-	 var cylinder_element =  custom_cylinderMesh(pointX, pointY, material_inter, tube_radius );
+	 var cylinder_element =  custom_cylinderMesh(pointX, pointY, material_inter, tube_radius,migration[q].Origin, migration[q].Destination, migration[q].Total  );
 	 instance = cylinder_element.clone();
  	 interpage_group.add(instance );
 	}
@@ -385,17 +499,13 @@ renderer.domElement.addEventListener( 'mousemove', onMouseMove );
 function add_interpages() {
     scene.add(interpage_group );
     animate() ;
-    console.log(state_data);
+    //console.log(state_data);
 }
 
-function pick() {
-//TO DO: continue to copy text here
 
-
-}
 
 // this creates the curving tubes
-function custom_cylinderMesh( point2, point1,material,tube_radius) {
+function custom_cylinderMesh( point2, point1,material,tube_radius,src, destination, total) {
   var x_delta, y_delta, z_delta;
    // point1 is always the source
 
@@ -435,11 +545,14 @@ function custom_cylinderMesh( point2, point1,material,tube_radius) {
 	pathBase = new THREE.CatmullRomCurve3(path);
 
   var tubularSegments = parseInt(distance/2)*3;
-	console.log(tubularSegments);
+	// console.log(tubularSegments);
   var radialSegments = 8;
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubularSegments, tube_radius, radialSegments);
 	var mesh = new THREE.Mesh( geometry, material );
+	mesh.userData.src_name = src;
+	mesh.userData.dest_name = destination;
+	mesh.userData.total = total;
   return mesh;
 
 }
@@ -475,10 +588,9 @@ function x_from_lat (lat)  {
 
 function render() {
 
+// calculate objects intersecting the picking ray var intersects =
+  raycaster.setFromCamera( mouse, camera );
 	controls.update();
- 	pick();
-  //  texture_in.offset.y += texture_in_offset;
-  //	texture_out.offset.y -= texture_in_offset;
   texture_inter.offset.x += texture_inter_offset;
   // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
@@ -494,25 +606,17 @@ function animate() {
           pChild.quaternion.copy(camera.quaternion);
      }
  );
-
- //X_text.applyQuaternion(camera.quaternion );
- //console.log(X_text.quaternion);
- //X_text.rotation.z = 0;
 	 controls.update();
-  //console.log(camera.position.x, camera.position.y, camera.position.z);
-	var vector = new THREE.Vector3( 0, 0, -1 );
-	vector.applyQuaternion( camera.quaternion );
-//console.log("vec: "+ vector.x + vector.y +vector.z);
- //console.log(X_text);
+	 var vector = new THREE.Vector3( 0, 0, -1 );
+	 vector.applyQuaternion( camera.quaternion );
+
 
 }
 
 
-function onMouseMove( e ) {
-	event.preventDefault();
-	mouse.x = e.clientX -200;
-	mouse.y = e.clientY;
-}
+
+
+
 
 </script>
 </body>
