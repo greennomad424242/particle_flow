@@ -1,0 +1,309 @@
+[
+ {
+   "state": "California",
+   "population": 39557045,
+   "per_change": 0.0619,
+   "per_nation": 0.1196
+ },
+ {
+   "state": "Texas",
+   "population": 28701845,
+   "per_change": 0.1414,
+   "per_nation": 0.0868
+ },
+ {
+   "state": "Florida",
+   "population": 21299325,
+   "per_change": 0.1327,
+   "per_nation": 0.0644
+ },
+ {
+   "state": "New York",
+   "population": 19542209,
+   "per_change": 0.0085,
+   "per_nation": 0.0591
+ },
+ {
+   "state": "Pennsylvania",
+   "population": 12807060,
+   "per_change": 0.0082,
+   "per_nation": 0.0387
+ },
+ {
+   "state": "Illinois",
+   "population": 12741080,
+   "per_change": -0.0071,
+   "per_nation": 0.0385
+ },
+ {
+   "state": "Ohio",
+   "population": 11689442,
+   "per_change": 0.0132,
+   "per_nation": 0.0353
+ },
+ {
+   "state": "Georgia",
+   "population": 10519475,
+   "per_change": 0.0857,
+   "per_nation": 0.0318
+ },
+ {
+   "state": "North Carolina",
+   "population": 10383620,
+   "per_change": 0.0889,
+   "per_nation": 0.0314
+ },
+ {
+   "state": "Michigan",
+   "population": 9998915,
+   "per_change": 0.0113,
+   "per_nation": 0.0302
+ },
+ {
+   "state": "New Jersey",
+   "population": 9032873,
+   "per_change": 0.0274,
+   "per_nation": 0.0269
+ },
+ {
+   "state": "Virginia",
+   "population": 8517685,
+   "per_change": 0.0646,
+   "per_nation": 0.0258
+ },
+ {
+   "state": "Washington",
+   "population": 7535591,
+   "per_change": 0.1206,
+   "per_nation": 0.0228
+ },
+ {
+   "state": "Arizona",
+   "population": 7171646,
+   "per_change": 0.1219,
+   "per_nation": 0.0217
+ },
+ {
+   "state": "Massachusetts",
+   "population": 6902149,
+   "per_change": 0.0541,
+   "per_nation": 0.0209
+ },
+ {
+   "state": "Tennessee",
+   "population": 6770010,
+   "per_change": 0.0668,
+   "per_nation": 0.0205
+ },
+ {
+   "state": "Indiana",
+   "population": 6691878,
+   "per_change": 0.032,
+   "per_nation": 0.0202
+ },
+ {
+   "state": "Missouri",
+   "population": 6126452,
+   "per_change": 0.023,
+   "per_nation": 0.0185
+ },
+ {
+   "state": "Maryland",
+   "population": 6042718,
+   "per_change": 0.0466,
+   "per_nation": 0.0183
+ },
+ {
+   "state": "Wisconsin",
+   "population": 5813568,
+   "per_change": 0.0222,
+   "per_nation": 0.0176
+ },
+ {
+   "state": "Colorado",
+   "population": 5695564,
+   "per_change": 0.1325,
+   "per_nation": 0.0172
+ },
+ {
+   "state":  "Minnesota",
+   "population": 5611179,
+   "per_change": 0.0579,
+   "per_nation": 0.017
+ },
+ {
+   "state": "South Carolina",
+   "population": 5084127,
+   "per_change": 0.0992,
+   "per_nation": 0.0154
+ },
+ {
+   "state": "Alabama",
+   "population": 4887871,
+   "per_change": 0.0225,
+   "per_nation": 0.0148
+ },
+ {
+   "state": "Louisiana",
+   "population": 4659978,
+   "per_change": 0.0279,
+   "per_nation": 0.0141
+ },
+ {
+   "state": "Kentucky",
+   "population": 4468402,
+   "per_change": 0.0297,
+   "per_nation": 0.0135
+ },
+ {
+   "state": "Oregon",
+   "population": 4190713,
+   "per_change": 0.0939,
+   "per_nation": 0.0127
+ },
+ {
+   "state": "Oklahoma",
+   "population": 3943079,
+   "per_change": 0.051,
+   "per_nation": 0.0119
+ },
+ {
+   "state": "Connecticut",
+   "population": 3572665,
+   "per_change": -0.0004,
+   "per_nation": 0.0108
+ },
+
+ {
+   "state": "Utah",
+   "population": 3161105,
+   "per_change": 0.1437,
+   "per_nation": 0.0096
+ },
+ {
+   "state": "Iowa",
+   "population": 3156145,
+   "per_change": 0.0359,
+   "per_nation": 0.0095
+ },
+ {
+   "state": "Nevada",
+   "population": 3034392,
+   "per_change": 0.1236,
+   "per_nation": 0.0092
+ },
+ {
+   "state": "Arkansas",
+   "population": 3013825,
+   "per_change": 0.0336,
+   "per_nation": 0.0091
+ },
+ {
+   "state": "Mississippi",
+   "population": 2986530,
+   "per_change": 0.0062,
+   "per_nation": 0.009
+ },
+ {
+   "state": "Kansas",
+   "population": 2911505,
+   "per_change": 0.0205,
+   "per_nation": 0.0088
+ },
+ {
+   "state": "New Mexico",
+   "population": 2095428,
+   "per_change": 0.0176,
+   "per_nation": 0.0063
+ },
+ {
+   "state": "Nebraska",
+   "population": 1929268,
+   "per_change": 0.0564,
+   "per_nation": 0.0058
+ },
+ {
+   "state": "West Virginia",
+   "population": 1805832,
+   "per_change": -0.0255,
+   "per_nation": 0.0055
+ },
+ {
+   "state": "Idaho",
+   "population": 1754208,
+   "per_change": 0.119,
+   "per_nation": 0.0053
+ },
+ {
+   "state": "Hawaii",
+   "population": 1420491,
+   "per_change": 0.0442,
+   "per_nation": 0.0043
+ },
+ {
+   "state": "New Hampshire",
+   "population": 1356458,
+   "per_change": 0.0304,
+   "per_nation": 0.0041
+ },
+ {
+   "state": "Maine",
+   "population": 1338404,
+   "per_change": 0.0076,
+   "per_nation": 0.004
+ },
+ {
+   "state":  "Montana",
+   "population": 1062305,
+   "per_change": 0.0737,
+   "per_nation": 0.0032
+ },
+ {
+   "state": "Rhode Island",
+   "population": 1057315,
+   "per_change": 0.0042,
+   "per_nation": 0.0032
+ },
+ {
+   "state": "Delaware",
+   "population": 967171,
+   "per_change": 0.0771,
+   "per_nation": 0.0029
+ },
+ {
+   "state": "South Dakota",
+   "population": 882235,
+   "per_change": 0.0836,
+   "per_nation": 0.0027
+ },
+ {
+   "state": "North Dakota",
+   "population": 760077,
+   "per_change": 0.1301,
+   "per_nation": 0.0023
+ },
+ {
+   "state": "Alaska",
+   "population": 737438,
+   "per_change": 0.0383,
+   "per_nation": 0.0022
+ },
+ {
+   "state": "District of Columbia",
+   "population": 702455,
+   "per_change": 0.1673,
+   "per_nation": 0.0021
+ },
+ {
+   "state": "Vermont",
+   "population": 626299,
+   "per_change": 0.0009,
+   "per_nation": 0.0019
+ },
+ {
+   "state": "Wyoming",
+   "population": 577737,
+   "per_change": 0.0248,
+   "per_nation": 0.0017
+ }
+]
