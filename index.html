@@ -80,7 +80,7 @@ var height_to_radius_ratio = 3;
 var x_spread = 3.8;
 var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =80;
+var num_tubes =4;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -410,7 +410,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
   page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
 	var per_change = state_data[k][5];
 	var per_nation = state_data[k][6];
-	console.log(state_data[k]);
+	//console.log(state_data[k]);
   //console.log(state_data[k]);
 
 	//TO DO : add some shading/color to back sidebar
@@ -456,7 +456,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
 	 texture.wrapS = THREE.RepeatWrapping;
 	 texture.wrapT = THREE.RepeatWrapping;
-		//texture.repeat.set( 12,12);
+
 	 } );
 
 	 texture_inter.anisotropy = anisotropy_inter;
@@ -485,17 +485,25 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	 pointY.z = z_from_long(dest_page[0][3]);
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
-   var repeat = distance/8;
-	 //console.log(repeat);
+   var tube_radius = tubular (migration[q].Total);
 
-   texture_inter.repeat.set( 8,4);
+	 console.log ("origin: " + migration[q].Origin + " destination: " + migration[q].Destination + " flow: " +  migration[q].Total +   " distance: " + distance + " radius: " + tube_radius);
+
+
+	 tubular_segments = 6
+   radial_segments = 6
+   texture_inter.repeat.set( 4,4);
 
    material_inter = new THREE.MeshLambertMaterial( {
        map: texture_inter,	 emissiveIntensity:0 } );
 
-   var tube_radius = tubular (migration[q].Total);
+
 		// create the tube using this special function (that gives it a curve)
-	 var cylinder_element =  custom_cylinderMesh(pointX, pointY, material_inter, tube_radius,migration[q].Origin, migration[q].Destination, migration[q].Total  );
+	 var cylinder_element =  custom_cylinderMesh(pointX,
+		         pointY,
+						 material_inter,
+						 migration[q].Origin,
+						 migration[q].Destination, migration[q].Total , tubular_segments, radial_segments,tube_radius  );
 	 instance = cylinder_element.clone();
  	 interpage_group.add(instance );
 	}
@@ -511,14 +519,9 @@ function add_interpages() {
 
 
 // this creates the curving tubes
-function custom_cylinderMesh( point2, point1,material,tube_radius,src, destination, total) {
+function custom_cylinderMesh( point2, point1,material,src, destination, total, tubular_segments, radial_segments, tube_radius) {
   var x_delta, y_delta, z_delta;
    // point1 is always the source
-
-  distance = Math.sqrt(
-		Math.pow((point2.x -   point1.x ),2)  +
-    Math.pow((point2.y -   point1.y),2)  +
-		Math.pow((point2.z -   point1.z ),2)   );
 
   mid_x = (point1.x + point2.x)/2;
 	mid_y = ( point1.y + point2.y)/2 ;
@@ -538,8 +541,7 @@ function custom_cylinderMesh( point2, point1,material,tube_radius,src, destinati
 		x_delta = safe_distance;
   }
 
-  var distance = parseInt(point1.distanceTo( point2 ));
-	var numPoints = distance /4;
+
 
 	// this creates the curvy path of the tube
 	path = [  point1,
@@ -550,11 +552,9 @@ function custom_cylinderMesh( point2, point1,material,tube_radius,src, destinati
   ];
 	pathBase = new THREE.CatmullRomCurve3(path);
 
-  var tubularSegments = parseInt(distance/2)*3;
-	// console.log(tubularSegments);
-  var radialSegments = 8;
+
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
-	var geometry = new THREE.TubeGeometry(pathBase, tubularSegments, tube_radius, radialSegments);
+	var geometry = new THREE.TubeGeometry(pathBase, tubular_segments, tube_radius, radial_segments);
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.userData.src_name = src;
 	mesh.userData.dest_name = destination;
