@@ -521,8 +521,9 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 
 
 	material_inter = new THREE.MeshLambertMaterial( {
-    color:  0x6F98EB ,
- 		emissiveIntensity:0 } );
+  map: texture_inter,
+	 color: 0xe30eca,
+ 		emissiveIntensity:0.5 } );
 
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
 	 if (migration[q].Origin == "New2 York") {
