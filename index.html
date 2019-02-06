@@ -26,6 +26,26 @@ var height = window.innerHeight;
 var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 
+
+
+var mouse = new THREE.Vector2();
+var raycaster = new THREE.Raycaster();
+
+
+
+
+// used for the curved tubes
+var pathBase, path;
+var picked_length = 0;
+var picked_var;
+var flow_viewed ="";
+var container, camera, controls, scene, renderer, num_rows,page_inbound, interpage_traffic, actual_array, pickingTexture, pickingScene, group, highlightBox, orbit_default;
+var intersects =[],  pickingData = [], state_data=[] ;
+var texture_in, texture_inter, population, state_locations, migration;
+
+
+//  Configuration options
+
 var text_color = '#EC7523';
 
 // Axis related
@@ -34,46 +54,12 @@ var y_color  = '#009900' ;
 var z_color  = '#0000e6';
 var axis_length = 100;
 var X_text,Y_text, Z_text;
-
-// used for orbit controls
-var rotSpeed =0;
-var opacity_value = 1;
-var rotateSpeed =2;
-var zoomSpeed=4;
-var panSpeed=2;
-var angle = 1;
-var delta =  0.005;
-
-// used for the curved tubes
-var pathBase, path;
-var picked_length = 0;
-var picked_var;
-var container, camera, controls, scene, renderer, num_rows,page_inbound, interpage_traffic, actual_array, pickingTexture, pickingScene, group, highlightBox, orbit_default;
-var intersects =[],  pickingData = [], state_data=[] ;
-var texture_in, texture_inter, population, state_locations, migration;
-
-var flow_viewed ="";
-var mouse = new THREE.Vector2();
-var raycaster = new THREE.Raycaster();
-
-//TO DO:
-//   - fix default camera angle
-//   - clean up the variables around scaling the x,y,z, and flow
-//
-
-//TO DO: net growth is color of box [optional]
-//sidebar of tables
-//
-
-//  Configuration options
-
-
 var state_viewed;
 var height_to_radius_ratio = 3;
 var x_spread = 3.8;
 var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =45;
+var num_tubes =5;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -103,13 +89,24 @@ var min_long =1000;
 var max_long =0;
 var min_pop = 100000000000;
 var max_pop = 0;
-	 text_group = new THREE.Group();
+text_group = new THREE.Group();
+
+
+// used for orbit controls
+var rotSpeed =0;
+var opacity_value = 1;
+var rotateSpeed =2;
+var zoomSpeed=4;
+var panSpeed=2;
+var angle = 1;
+var delta =  0.005;
+
 //
 //   end variables
 //
 
 
-
+// this puts a comma between the numbers (e.g. 4,000)
 function commafy( num ) {
   var str = num.toString().split('.');
   if (str[0].length >= 3) {
@@ -134,6 +131,57 @@ function getObjects(obj, key, val) {
     }
     return objects;
 }
+
+
+function tubular(flow) {
+ var val = (flow - min_flow) * tube_width_multiplier + min_width
+ if (val < 1) { val = 1;}
+	return parseInt(val)
+ }
+
+ function provide_color(low_color, high_color, percentile) {
+ 	var color1 = high_color;
+ 	var color2 = low_color;
+  var ratio = percentile;
+
+ 	var hex = function(x) {
+ 	    x = x.toString(16);
+ 	    return (x.length == 1) ? '0' + x : x;
+ 	};
+
+ 	var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
+ 	var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
+ 	var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+  var middle = hex(r) + hex(g) + hex(b);
+ 	return middle
+ }
+
+ // this is used to display the labels
+ function text_display (q) {
+    var fontLoader = new THREE.FontLoader();
+   	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
+ 	  	var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
+ 		 size: text_size,
+ 		 height: text_height,
+ 		 curveSegments: 1,
+ 		 font: tex,
+ 		});
+    	var  X_textMaterial = new THREE.MeshBasicMaterial({ color: text_color});
+ 	  X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
+ 		var position = axis.geometry.attributes.position;
+     	X_text.position.x  =  x_from_lat(state_data[q][2]);
+ 			X_text.position.y  =  y_from_pop(state_data[q][1]) + 5+ state_data[q][4]/2;
+ 			X_text.position.z  =  z_from_long(state_data[q][3]) ;
+ 		 var instance = X_text.clone();
+ 			 text_group.add(instance);
+
+    });
+
+ }
+
+
+// begin the code--------------
+
 var matrix = new THREE.Matrix4();
 var quaternion = new THREE.Quaternion();
 //
@@ -148,7 +196,6 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
     for (j=0; j < population.length ; j++)  {
 			var state_name = population[j].state;
 			var temp = getObjects(state_locations, 'name', state_name );
-
       var lat = Math.abs(parseFloat(temp[0].lat));
 			var long = Math.abs(parseFloat(temp[0].long));
 			var pop = population[j].population;
@@ -176,13 +223,13 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			if (long > max_long) {
         max_long = long;
 			}
-			state_data.push ([state_name ,pop, lat, long, per_change, per_nation]);
+			state_data.push ([state_name ,pop, lat, long, 0,per_change, per_nation]);
 		}
 
 		var jqxhr = $.getJSON( "migration.json", function(data) {
 			 migration = data;
 
-	      for (z =0; z<migration.length; z++) {
+	      for (z =0; z<migration.length && z< (num_tubes+1); z++) {
 	        if (migration[z].Total < min_flow)   {
 						   min_flow =migration[z].Total;
 				  }
@@ -203,38 +250,6 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 	});
 });
 
-function text_display (q) {
-   var fontLoader = new THREE.FontLoader();
-  	fontLoader.load("helvetiker_regular.typeface.json",function(tex){
-	  	var  X_axis_label = new THREE.TextGeometry(state_data[q][0], {
-		 size: text_size,
-		 height: text_height,
-		 curveSegments: 1,
-		 font: tex,
-		});
-
-
-
-
-   	var  X_textMaterial = new THREE.MeshBasicMaterial({ color: text_color});
-	  X_text = new THREE.Mesh( X_axis_label , X_textMaterial);
-		var position = axis.geometry.attributes.position;
-    	X_text.position.x  =  x_from_lat(state_data[q][2]);
-			X_text.position.y  =  y_from_pop(state_data[q][1]) + 5+ state_data[q][4]/2;
-			X_text.position.z  =  z_from_long(state_data[q][3]) ;
-		 var instance = X_text.clone();
-			 text_group.add(instance);
-
-});
-
-}
-
-function tubular(flow) {
- var val = (flow - min_flow) * tube_width_multiplier + min_width
- if (val < 1) { val = 1;}
-	return parseInt(val)
- }
-
 
 function display(callback) {
 	//initial setup
@@ -243,7 +258,6 @@ function display(callback) {
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
-
 
  //
  // Sidebar functionality
@@ -297,7 +311,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
   //  console.log(max  );
 
 // find max flow in
-        var html =  "<div id='state_name'>" + selected_state  + "</div>";
+      var html =  "<div id='state_name'>" + selected_state  + "</div>";
        html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][5]*100) + "% of country)";
         html +=  "<br><br>Change from 2010-2018: " + state_info[0][4] + "%</div><br><br>Migration flows:<p>" ;
 				for (z = 0; z< flow_in.length  && z<40; z++) {
@@ -330,8 +344,6 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
  //var radius = Math.sqrt(camera_x* camera_x + camera_y* camera_y+ camera_z*camera_z );
 
  camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-
-
 
  camera.position.x = 80;
  camera.position.y = 80;
@@ -390,7 +402,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 
  texture_page.anisotropy = 1; */
 
-
+  console.log(state_data);
  // create the pages
  for (var k=0; k<state_data.length; k++) {
 
@@ -404,40 +416,31 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
   page_height = state_data[k][4] = parseInt(height_to_radius_ratio*radius_state);
 	var per_change = state_data[k][5];
 	var per_nation = state_data[k][6];
-	//console.log(state_data[k]);
-  //console.log(state_data[k]);
+	//console.log(state_data[k][0]);
+  //console.log(state_data[k][5]);
 
 	//TO DO : add some shading/color to back sidebar
 	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
 // TO DO: figure out why this color change isn't working
+if (per_change  < 0 ) {
+ select_color  = 0xD6B492;
 
-  if (per_change > 0 ) {
-    material_page = new THREE.MeshLambertMaterial( {
-          color:  0x4F8DAA ,  //0x92D698,  //green
-	        emissiveIntensity:0
-   	} );
-  } else {
+
+} else {
+
+select_color  = 0x29841B;
+
+}
+
+
+
 		material_page = new THREE.MeshLambertMaterial( {
-					color: 0xD6B492,  // orange
+					color:  select_color,  // orange
 					emissiveIntensity:0
 		} );
-  }
 
 
-	var color1 = '3C75EF';
-	var color2 = 'C0C3C9';
-	var ratio = 0.8;
-	var hex = function(x) {
-	    x = x.toString(16);
-	    return (x.length == 1) ? '0' + x : x;
-	};
 
-	var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
-	var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
-	var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
-
-	var middle = "0x" + hex(r) + hex(g) + hex(b);
-	console.log(middle);
 
 
     //material_page.color =    '0x4F8DAA';
@@ -511,29 +514,30 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 // if thick or thin
 	if (tube_radius > 2) {
 	  width_repeat = 12;
-		radial_segments = 24;
+
 
 	} else {
 	 width_repeat = 8;
-	 radial_segments = 4;
+
 
 	}
 
 
+
+var temp_color = provide_color( 'DBDBDC','0099CC',1);
+var t_color  = new THREE.Color( '#'+temp_color);
+
 	material_inter = new THREE.MeshLambertMaterial( {
   map: texture_inter,
-	 color: 0xe30eca,
+	 color: t_color,
+	 wireframe: false,
  		emissiveIntensity:0.5 } );
-
+radial_segments = 11;
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
 	 if (migration[q].Origin == "New2 York") {
 	 console.log ("origin: " + migration[q].Origin + " destination: " + migration[q].Destination + " flow: " +  migration[q].Total +   " distance: " + distance +  " length_repeat:"  + length_repeat + " tube_radius: " + tube_radius
  + " width_repeat: " + width_repeat );
 }
-
-
-
-
 
 
 		// create the tube using this special function (that gives it a curve)
@@ -603,6 +607,10 @@ function custom_cylinderMesh( point2,
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubular_segments, tube_radius, radial_segments);
 	var mesh = new THREE.Mesh( geometry, material );
+	//var edges = new THREE.EdgesGeometry( geometry );
+  //var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
+  //var line_instance = line.clone();
+  //page_group.add( line_instance );
 	mesh.userData.src_name = src;
 	mesh.userData.dest_name = destination;
 	mesh.userData.total = total;
