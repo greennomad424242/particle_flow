@@ -80,7 +80,7 @@ var height_to_radius_ratio = 3;
 var x_spread = 3.8;
 var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =4;
+var num_tubes =45;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -237,7 +237,8 @@ function text_display (q) {
 }
 
 function tubular(flow) {
- var val = (flow - min_flow) * tube_width_multiplier + min_width;
+ var val = (flow - min_flow) * tube_width_multiplier + min_width
+ if (val < 1) { val = 1;}
 	return parseInt(val)
  }
 
@@ -462,9 +463,11 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	 texture_inter.anisotropy = anisotropy_inter;
 
 	 interpage_group = new THREE.Group();
-
+	 material_inter = new THREE.MeshLambertMaterial( {
+			 map: texture_inter,	 emissiveIntensity:0 } );
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
+		   var tube_radius = tubular (migration[q].Total);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
 		});
@@ -485,17 +488,50 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	 pointY.z = z_from_long(dest_page[0][3]);
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
-   var tube_radius = tubular (migration[q].Total);
-
-	 console.log ("origin: " + migration[q].Origin + " destination: " + migration[q].Destination + " flow: " +  migration[q].Total +   " distance: " + distance + " radius: " + tube_radius);
 
 
-	 tubular_segments = 6
-   radial_segments = 6
-   texture_inter.repeat.set( 4,4);
 
-   material_inter = new THREE.MeshLambertMaterial( {
-       map: texture_inter,	 emissiveIntensity:0 } );
+	 if (distance > 220)  {
+	   length_repeat = 28;
+	   tubular_segments =28; // number of segments along its length
+	 }
+else if (distance > 120)  {
+  length_repeat = 18;
+  tubular_segments =18; // number of segments along its length
+}
+else if (distance > 80)  {
+	length_repeat = 24;
+	tubular_segments = 8; // number of segments along its length
+}  else {
+ length_repeat = 12;
+ tubular_segments = 6; // number of segments along its length
+}
+
+
+if (tube_radius > 2) {
+  width_repeat = 12;
+	radial_segments = 12;
+
+} else {
+ width_repeat = 6;
+ radial_segments = 8;
+
+}
+
+
+   texture_inter.repeat.set( length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
+
+
+
+
+
+	 console.log ("origin: " + migration[q].Origin + " destination: " + migration[q].Destination + " flow: " +  migration[q].Total +   " distance: " + distance +  " length_repeat:"  + length_repeat + " tube_radius: " + tube_radius
+ + " width_repeat: " + width_repeat );
+
+
+
+
+
 
 
 		// create the tube using this special function (that gives it a curve)
@@ -503,7 +539,11 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 		         pointY,
 						 material_inter,
 						 migration[q].Origin,
-						 migration[q].Destination, migration[q].Total , tubular_segments, radial_segments,tube_radius  );
+						 migration[q].Destination,
+						 migration[q].Total ,
+						 tubular_segments,
+						 radial_segments,
+						 tube_radius  );
 	 instance = cylinder_element.clone();
  	 interpage_group.add(instance );
 	}
@@ -519,7 +559,15 @@ function add_interpages() {
 
 
 // this creates the curving tubes
-function custom_cylinderMesh( point2, point1,material,src, destination, total, tubular_segments, radial_segments, tube_radius) {
+function custom_cylinderMesh( point2,
+														point1,
+														material,
+														src,
+														destination,
+														total,
+														tubular_segments,
+														radial_segments,
+														tube_radius) {
   var x_delta, y_delta, z_delta;
    // point1 is always the source
 
@@ -541,8 +589,6 @@ function custom_cylinderMesh( point2, point1,material,src, destination, total, t
 		x_delta = safe_distance;
   }
 
-
-
 	// this creates the curvy path of the tube
 	path = [  point1,
 	  new THREE.Vector3( mid_x + x_delta ,
@@ -551,7 +597,6 @@ function custom_cylinderMesh( point2, point1,material,src, destination, total, t
 	  point2
   ];
 	pathBase = new THREE.CatmullRomCurve3(path);
-
 
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubular_segments, tube_radius, radial_segments);
