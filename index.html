@@ -42,18 +42,11 @@ var rotateSpeed =2;
 var zoomSpeed=4;
 var panSpeed=2;
 var angle = 1;
-
-
 var delta =  0.005;
 
 // used for the curved tubes
 var pathBase, path;
-
-
 var picked_length = 0;
-
-
-
 var picked_var;
 var container, camera, controls, scene, renderer, num_rows,page_inbound, interpage_traffic, actual_array, pickingTexture, pickingScene, group, highlightBox, orbit_default;
 var intersects =[],  pickingData = [], state_data=[] ;
@@ -431,6 +424,22 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
   }
 
 
+	var color1 = '3C75EF';
+	var color2 = 'C0C3C9';
+	var ratio = 0.8;
+	var hex = function(x) {
+	    x = x.toString(16);
+	    return (x.length == 1) ? '0' + x : x;
+	};
+
+	var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
+	var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
+	var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+
+	var middle = "0x" + hex(r) + hex(g) + hex(b);
+	console.log(middle);
+
+
     //material_page.color =    '0x4F8DAA';
 
 	var cylinder = new THREE.Mesh( geometry, material_page );
@@ -455,16 +464,14 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 // tube materials
 
 	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
-	 texture.wrapS = THREE.RepeatWrapping;
-	 texture.wrapT = THREE.RepeatWrapping;
+	 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
 	 } );
 
 	 texture_inter.anisotropy = anisotropy_inter;
 
 	 interpage_group = new THREE.Group();
-	 material_inter = new THREE.MeshLambertMaterial( {
-			 map: texture_inter,	 emissiveIntensity:0 } );
+
   // Create each tube
 	for (q=0; q < num_tubes; q++) {  //migration.length
 		   var tube_radius = tubular (migration[q].Total);
@@ -490,44 +497,38 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
 
 
-
+// if long or short
 	 if (distance > 220)  {
-	   length_repeat = 28;
-	   tubular_segments =28; // number of segments along its length
-	 }
-else if (distance > 120)  {
-  length_repeat = 18;
-  tubular_segments =18; // number of segments along its length
-}
-else if (distance > 80)  {
-	length_repeat = 24;
-	tubular_segments = 8; // number of segments along its length
-}  else {
- length_repeat = 12;
- tubular_segments = 6; // number of segments along its length
-}
+		 texture_inter.repeat.set(128,8 );
+	   length_repeat =64;
+	   tubular_segments =64; // number of segments along its length
+	 } else {
+	  length_repeat = 12;
+	  tubular_segments = 6; // number of segments along its length
+	 	texture_inter.repeat.set(12,8 );
+	}
+
+// if thick or thin
+	if (tube_radius > 2) {
+	  width_repeat = 12;
+		radial_segments = 24;
+
+	} else {
+	 width_repeat = 8;
+	 radial_segments = 4;
+
+	}
 
 
-if (tube_radius > 2) {
-  width_repeat = 12;
-	radial_segments = 12;
+	material_inter = new THREE.MeshLambertMaterial( {
+    color:  0x6F98EB ,
+ 		emissiveIntensity:0 } );
 
-} else {
- width_repeat = 6;
- radial_segments = 8;
-
-}
-
-
-   texture_inter.repeat.set( length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
-
-
-
-
-
+   //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
+	 if (migration[q].Origin == "New2 York") {
 	 console.log ("origin: " + migration[q].Origin + " destination: " + migration[q].Destination + " flow: " +  migration[q].Total +   " distance: " + distance +  " length_repeat:"  + length_repeat + " tube_radius: " + tube_radius
  + " width_repeat: " + width_repeat );
-
+}
 
 
 
