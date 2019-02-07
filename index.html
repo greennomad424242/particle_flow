@@ -27,7 +27,7 @@ var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
 var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
-
+var first_reviewed;
 // used for the curved tubes
 var pathBase, path;
 var picked_length = 0;
@@ -262,6 +262,9 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 });
 }
 
+
+
+
 function display(callback) {
 	//initial setup
  container = document.getElementById("main_area" );
@@ -278,20 +281,29 @@ function display(callback) {
  mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
 //console.log(mouse.x);
-if (mouse.x < -0.61 )  {
+if (mouse.x < -0.91 )  {
 // sidebar pulldown
+ if (first_reviewed == true )  {
+     first_reviewed = false;
+   // if it's the first time moused over the sidebar
+	 var html = '<div id="pulldowns"> Top <select id="percent_pulldown"><option value="10">10%</option><option value="25">25%</option><option value="50">50%</option></select> from ';
+   html +='<select id="state_pulldown"><option value="all">All</option><option value="California">California</option><option value="Washington">Washington</option></div>';
+
+    document.getElementById("sidebar").innerHTML =html;
+   // add change
+	 $('#state_pulldown').on('change', function() {
+ 	//alert( this.value );
+ 	console.log(this.value );
+ 	});
+
+ }
 
 
-// select X percent of flows 
-
-//TO DO: if mouse over sidebar, able to select a pulldown of states and only see that state
-
-// ToDo turn on the visible tubes for that state
 
 }  else {
 
 
-
+ first_reviewed = true;
 
  raycaster.setFromCamera( mouse, camera );
  intersects_state = raycaster.intersectObjects( scene.children[2].children );
@@ -510,7 +522,7 @@ select_color  = 0x29841B;
 	 interpage_group = new THREE.Group();
 
   // Create each tube
-	for (q=0; q < num_tubes; q++) {  //migration.length
+	for (q=0; q < migration.length/2; q++) {  //migration.length
 		   var tube_radius = tubular (migration[q].Total);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
@@ -557,16 +569,21 @@ select_color  = 0x29841B;
 	}
 
 percentage = migration[q].Total/max_flow;
-console.log(percentage);
+//console.log(percentage);
 
 
-
+if (q< num_tubes) {
+  var shown = true;
+} else {
+  var shown = false;
+}
 
 
 	material_inter = new THREE.MeshLambertMaterial( {
   map: texture_inter,
 	 color: new THREE.Color( '#'+ provide_color( 'A2A2A2','2574FF',percentage)),
 	 wireframe: false,
+	 visible:shown ,
  		emissiveIntensity:0.9 } );
 //material_inter.color =  0xEB1D78;
 
@@ -653,6 +670,8 @@ function custom_cylinderMesh( point2,
   //page_group.add( line_instance );
 
 	mesh.visible = true;
+
+
 	mesh.userData.src_name = src;
 	mesh.userData.dest_name = destination;
 	mesh.userData.total = total;
