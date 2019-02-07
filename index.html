@@ -59,7 +59,7 @@ var height_to_radius_ratio = 3;
 var x_spread = 3.8;
 var z_spread = 2.8;
 var z_shift = 50;
-var num_tubes =5;
+var num_tubes =50;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -82,7 +82,8 @@ var min_flow = 1000000000;
 var max_flow = 0;
 var max_width = 4;
 var min_width = 0.3;
-
+var min_per_change = 1000;
+var max_per_change =0;
 var min_lat =1000;
 var max_lat = 0;
 var min_long =1000;
@@ -202,6 +203,16 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			var per_change = population[j].per_change;
 			var per_nation = population[j].per_nation;
 
+
+     if (per_change > max_per_change)  {
+            max_per_change = per_change
+		 }
+		 if (per_change < min_per_change)  {
+            min_per_change = per_change
+		 }
+
+
+
 			 // find the minimum values to allow shifting later on
       if (pop > max_pop)  {
 			  max_pop = pop;
@@ -289,7 +300,12 @@ function display(callback) {
    }
   }
 
-}  else { flow_viewed ="";}
+}  else { flow_viewed ="";
+
+//document.getElementById("sidebar").innerHTML = "";
+
+
+}
 if  (intersects_state.length > 0 ) {
  	for (t=0;t< intersects_state.length; t++ ) {
 	  if (intersects_state[t].object.type =="Mesh")  {
@@ -312,8 +328,8 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 
 // find max flow in
       var html =  "<div id='state_name'>" + selected_state  + "</div>";
-       html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][5]*100) + "% of country)";
-        html +=  "<br><br>Change from 2010-2018: " + state_info[0][4] + "%</div><br><br>Migration flows:<p>" ;
+       html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][6]*100) + "% of country)";
+        html +=  "<br><br>Change from 2010-2018: " + state_info[0][5]*100 + "%</div><br><br>Migration flows:<p>" ;
 				for (z = 0; z< flow_in.length  && z<40; z++) {
              var percentile = flow_in[z].Total/max*100;
 					   if (flow_in[z].Origin  != selected_state) {
@@ -419,22 +435,17 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 	//console.log(state_data[k][0]);
   //console.log(state_data[k][5]);
 
-	//TO DO : add some shading/color to back sidebar
-	var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
-// TO DO: figure out why this color change isn't working
+
+var geometry = new THREE.CylinderBufferGeometry(radius_state, radius_state, page_height, 8 );
+
 if (per_change  < 0 ) {
- select_color  = 0xD6B492;
-
-
+ select_color  = 0xEB461D;
 } else {
 
 select_color  = 0x29841B;
 
 }
-
-
-
-		material_page = new THREE.MeshLambertMaterial( {
+  material_page = new THREE.MeshLambertMaterial( {
 					color:  select_color,  // orange
 					emissiveIntensity:0
 		} );
@@ -522,16 +533,21 @@ select_color  = 0x29841B;
 
 	}
 
+percentage = migration[q].Total/max_flow;
+console.log(percentage);
 
 
-var temp_color = provide_color( 'DBDBDC','0099CC',1);
-var t_color  = new THREE.Color( '#'+temp_color);
+
+
 
 	material_inter = new THREE.MeshLambertMaterial( {
   map: texture_inter,
-	 color: t_color,
+	 color: new THREE.Color( '#'+ provide_color( 'A2A2A2','2574FF',percentage)),
 	 wireframe: false,
- 		emissiveIntensity:0.5 } );
+ 		emissiveIntensity:0.9 } );
+//material_inter.color =  0xEB1D78;
+
+
 radial_segments = 11;
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
 	 if (migration[q].Origin == "New2 York") {
@@ -606,6 +622,7 @@ function custom_cylinderMesh( point2,
 
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubular_segments, tube_radius, radial_segments);
+	//material.color =
 	var mesh = new THREE.Mesh( geometry, material );
 	//var edges = new THREE.EdgesGeometry( geometry );
   //var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
