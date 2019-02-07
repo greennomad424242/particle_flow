@@ -280,9 +280,13 @@ function display(callback) {
 //console.log(mouse.x);
 if (mouse.x < -0.61 )  {
 // sidebar pulldown
+
+
+// select X percent of flows 
+
 //TO DO: if mouse over sidebar, able to select a pulldown of states and only see that state
 
-console.log("sidebar");
+// ToDo turn on the visible tubes for that state
 
 }  else {
 
@@ -342,7 +346,7 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 // find max flow in
       var html =  "<div id='state_name'>" + selected_state  + "</div>";
        html +=  "<div id='population_name'>" + "Population: " +  commafy(state_info[0][1]) +  " (" + Math.round(state_info[0][6]*100) + "% of country)";
-        html +=  "<br><br>Change from 2010-2018: " + state_info[0][5]*100 + "%</div><br><br>Migration flows:<p>" ;
+        html +=  "<br><br>Change from 2010-2018: " + Math.round(state_info[0][5]*1000)/10 + "%</div><br><br>Migration flows:<p>" ;
 				for (z = 0; z< flow_in.length  && z<40; z++) {
              var percentile = flow_in[z].Total/max*100;
 					   if (flow_in[z].Origin  != selected_state) {
@@ -361,6 +365,9 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 				}
 			  html +="";
 				document.getElementById("sidebar").innerHTML = html;
+
+
+
 
 		}
 	  }
@@ -644,6 +651,8 @@ function custom_cylinderMesh( point2,
   //var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
   //var line_instance = line.clone();
   //page_group.add( line_instance );
+
+	mesh.visible = true;
 	mesh.userData.src_name = src;
 	mesh.userData.dest_name = destination;
 	mesh.userData.total = total;
