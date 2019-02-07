@@ -25,14 +25,8 @@ var height = window.innerHeight;
 
 var DataFrame = dfjs.DataFrame;
 var offset = new THREE.Vector3( picked_length, picked_length, picked_length );
-
-
-
 var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
-
-
-
 
 // used for the curved tubes
 var pathBase, path;
@@ -42,7 +36,7 @@ var flow_viewed ="";
 var container, camera, controls, scene, renderer, num_rows,page_inbound, interpage_traffic, actual_array, pickingTexture, pickingScene, group, highlightBox, orbit_default;
 var intersects =[],  pickingData = [], state_data=[] ;
 var texture_in, texture_inter, population, state_locations, migration;
-
+var min_flow, max_flow ,  max_width , min_width, min_per_change ,max_per_change , min_lat , max_lat , min_long , max_long , min_pop , max_pop ;
 
 //  Configuration options
 
@@ -78,20 +72,10 @@ var anisotropy_inter = 1;
 var tube_width_multiplier;
 var volume_multiplier = 1/15000;
 
-var min_flow = 1000000000;
-var max_flow = 0;
-var max_width = 4;
-var min_width = 0.3;
-var min_per_change = 1000;
-var max_per_change =0;
-var min_lat =1000;
-var max_lat = 0;
-var min_long =1000;
-var max_long =0;
-var min_pop = 100000000000;
-var max_pop = 0;
-text_group = new THREE.Group();
 
+
+
+text_group = new THREE.Group();
 
 // used for orbit controls
 var rotSpeed =0;
@@ -185,9 +169,25 @@ function tubular(flow) {
 
 var matrix = new THREE.Matrix4();
 var quaternion = new THREE.Quaternion();
+init();
 //
 // import data
 //
+function init() {
+
+	min_flow = 1000000000;
+ max_flow = 0;
+	 max_width = 4;
+	 min_width = 0.3;
+ min_per_change = 1000;
+	 max_per_change =0;
+	 min_lat =1000;
+	 max_lat = 0;
+	 min_long =1000;
+	 max_long =0;
+	 min_pop = 100000000000;
+	 max_pop = 0;
+
 
 // get the state information (population, lat, long)
 var jqxhr = $.getJSON( "capitals.json", function(data) {
@@ -260,7 +260,7 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 		});
 	});
 });
-
+}
 
 function display(callback) {
 	//initial setup
@@ -276,6 +276,19 @@ function display(callback) {
  document.addEventListener( 'mousemove', function( event ) {
  mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
  mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+
+//console.log(mouse.x);
+if (mouse.x < -0.61 )  {
+// sidebar pulldown
+//TO DO: if mouse over sidebar, able to select a pulldown of states and only see that state
+
+console.log("sidebar");
+
+}  else {
+
+
+
+
  raycaster.setFromCamera( mouse, camera );
  intersects_state = raycaster.intersectObjects( scene.children[2].children );
  intersects_flow = raycaster.intersectObjects( scene.children[3].children );
@@ -354,6 +367,9 @@ var max= Math.max.apply(Math, flow_in.map(function(o) { return o.Total; }))
 
  	}
 } else {  state_viewed  =""}
+
+
+}
  }, false );
 
 
