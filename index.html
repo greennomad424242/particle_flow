@@ -61,7 +61,8 @@ var speed_multiplier =70;
 var text_height = .1;
 var safe_distance =3;
 var texture_in_offset =0.01;
-var texture_inter_offset =0.01;
+var texture_inter_offset =0.01
+var texture_inter2_offset =0.01;
 var texture_out_offset =0.01;
 var texture_out;
 
@@ -425,7 +426,7 @@ function display(callback) {
  var num_rows = state_data.length;
  page_group = new THREE.Group();
 
- const textureLoader = new THREE.TextureLoader();
+ var textureLoader = new THREE.TextureLoader();
 
  // create the pages
  for (var k=0; k<state_data.length; k++) {
@@ -471,14 +472,7 @@ function display(callback) {
 	 }
 	 scene.add(page_group);
 
-// tube materials
 
-	 texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
-	 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-	 } );
-
-	 texture_inter.anisotropy = anisotropy_inter;
 
 	 interpage_group = new THREE.Group();
   	for (z =0; z<migration.length ; z++) {
@@ -493,10 +487,21 @@ function display(callback) {
  tube_width_multiplier = (max_width - min_width) / (max_flow - min_flow);
 
   // ToDo sort migration here
+ 	var textureLoader = new THREE.TextureLoader();
 
+
+	texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
+	texture_inter.anisotropy = anisotropy_inter;
+
+
+	texture_inter2 = textureLoader.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
+	texture_inter2.anisotropy = anisotropy_inter;
 
   // Create each tube
 	for (q=0; q < migration.length; q++) {  //migration.length
+
+		// tube materials
+
 		var tube_radius = tubular (migration[q].Total);
 		var src_page = $.grep(state_data, function(v) {
 				 return v[0] ==  migration[q].Origin ;
@@ -522,24 +527,7 @@ function display(callback) {
    length_repeat =64;
 	 tubular_segments =64;
 
-// if long or short
-	 if (distance > 220)  {   //long
 
-
-	 } else {   //short
-
-
-		 // if thick or thin
-		 	if (tube_radius > 2) {   // thick
-
-		 	} else {
-		 	 width_repeat = 8;
-		 	}
-
-	  length_repeat = 12;
-	  tubular_segments = 6; // number of segments along its length
-
-	}
 percentage = migration[q].Total/max_flow;
 //console.log(percentage);
 
@@ -557,13 +545,29 @@ if (q< num_tubes) {
 	 wireframe: false,
 	 visible:shown ,
  	 emissiveIntensity:0.9 } );
+material_inter.map.repeat.set(24,5 );
 
-material_inter.map.repeat.set(34,3 );
+material_inter2 = new THREE.MeshLambertMaterial( {
+map: texture_inter2,
+ color: new THREE.Color( '#'+ provide_color( 'A2A2A2','B82626',percentage)),
+ wireframe: false,
+ visible:shown ,
+ emissiveIntensity:0.9 } );
+ material_inter2.map.repeat.set(5,5 );
+
+
+
+// if long or short
+	 if (distance > 30)  {   //long
+      material = material_inter;
+	 } else {   //short
+		 // if thick or thin
+		  material = material_inter2;
+	}
+console.log(distance);
 
 radial_segments = 11;
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
-
-
 
 		// create the tube using this special function (that gives it a curve)
 	 var cylinder_element =  custom_cylinderMesh(pointX,
@@ -639,8 +643,6 @@ function custom_cylinderMesh( point2,
   //page_group.add( line_instance );
 
 	mesh.visible = true;
-
-
 	mesh.userData.src_name = src;
 	mesh.userData.dest_name = destination;
 	mesh.userData.total = total;
@@ -683,6 +685,7 @@ function render() {
   raycaster.setFromCamera( mouse, camera );
 	controls.update();
   texture_inter.offset.x += texture_inter_offset;
+	texture_inter2_offset.x += texture_inter2_offset;
   // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
 
