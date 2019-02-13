@@ -315,7 +315,7 @@ function display(callback) {
 	mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
   //console.log(mouse.x);
-	if (mouse.x < -0.91 )  {
+	if (mouse.x < -10.91 )  {
 // sidebar pulldown
    if (first_reviewed == true )  {
      first_reviewed = false;
@@ -498,7 +498,7 @@ function display(callback) {
 	texture_inter2.anisotropy = anisotropy_inter;
 
   // Create each tube
-	for (q=0; q < migration.length; q++) {  //migration.length
+	for (q=0; q < num_tubes; q++) {  //migration.length
 
 		// tube materials
 
