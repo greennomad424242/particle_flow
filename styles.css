@@ -4,6 +4,11 @@ html, body {
     font: 400 16px/18px Roboto,sans-serif;
 }
 
+#pulldowns {
+  font: 400 16px/18px Roboto,sans-serif;
+  padding-left: 15px;
+
+}
 
 #sidebar {
 
