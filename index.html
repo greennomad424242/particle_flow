@@ -53,7 +53,7 @@ var height_to_radius_ratio = 3;
 var x_spread = 3.9;  // how much the data is spread in the long direction
 var z_spread = 2.9;  // how much the data is spread out in the lat direction
 var z_shift = 50;
-var num_tubes =50;
+var num_tubes =15;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -326,11 +326,16 @@ function display(callback) {
 	   $('#state_pulldown').on('change', function() {
  	     var selected_state = this.value ;
        // TODO: hide all the previous ones
+			 t=0;
        console.log(scene.children[3].children.length);
        for (z=0; z < scene.children[3].children.length; z++)  {
           if  ( (scene.children[3].children[z].userData.dest_name  == selected_state) ||    (scene.children[3].children[z].userData.src_name  == selected_state) ){
             console.log(scene.children[3].children[z].userData.dest_name ,  scene.children[3].children[z].userData.src_name);
+
+						if (t< num_tubes) {
             scene.children[3].children[z].material.visible = true;
+						t+=1;} else {scene.children[3].children[z].material.visible = false;}
+
 			    } else {
   				  scene.children[3].children[z].material.visible = false;
 	   		 }
@@ -487,7 +492,7 @@ function display(callback) {
 
  tube_width_multiplier = (max_width - min_width) / (max_flow - min_flow);
 
-  // sort migration here
+  // ToDo sort migration here
 
 
   // Create each tube
@@ -513,27 +518,28 @@ function display(callback) {
 	 pointY.z = z_from_long(dest_page[0][3]);
 
 	 var distance = Math.abs(parseInt(pointY.distanceTo( pointX )));
-
+   width_repeat = 12;
+   length_repeat =64;
+	 tubular_segments =64;
 
 // if long or short
-	 if (distance > 220)  {
-		 texture_inter.repeat.set(128,8 );
-	   length_repeat =64;
-	   tubular_segments =64; // number of segments along its length
-	 } else {
+	 if (distance > 220)  {   //long
+
+
+	 } else {   //short
+
+
+		 // if thick or thin
+		 	if (tube_radius > 2) {   // thick
+
+		 	} else {
+		 	 width_repeat = 8;
+		 	}
+
 	  length_repeat = 12;
 	  tubular_segments = 6; // number of segments along its length
-	 	texture_inter.repeat.set(12,8 );
+
 	}
-
-// if thick or thin
-	if (tube_radius > 2) {
-	  width_repeat = 12;
-	} else {
-	 width_repeat = 8;
-	}
-
-
 percentage = migration[q].Total/max_flow;
 //console.log(percentage);
 
@@ -552,7 +558,7 @@ if (q< num_tubes) {
 	 visible:shown ,
  	 emissiveIntensity:0.9 } );
 
-
+material_inter.map.repeat.set(34,3 );
 
 radial_segments = 11;
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
