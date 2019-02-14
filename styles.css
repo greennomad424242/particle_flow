@@ -10,6 +10,16 @@ html, body {
 
 }
 
+
+li {margin-bottom: 10px;}
+
+#explanatory  {
+
+ padding-left: 5px;
+ padding-right: 5px;
+  font: 400 14px/16px Roboto,sans-serif;
+
+}
 #sidebar {
 
     border: 1px solid black;
