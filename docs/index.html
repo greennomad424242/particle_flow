@@ -51,9 +51,9 @@ var X_text,Y_text, Z_text;
 var state_viewed;
 var height_to_radius_ratio = 3;
 var x_spread = 3.9;  // how much the data is spread in the long direction
-var z_spread = 2.9;  // how much the data is spread out in the lat direction
+var z_spread = 3.9;  // how much the data is spread out in the lat direction
 var z_shift = 50;
-var num_tubes =15;
+var num_tubes =20;
 var text_size =2;
 var page_height = 15;
 var page_diameter = 5;
@@ -63,8 +63,12 @@ var safe_distance =3;
 var texture_in_offset =0.01;
 var texture_inter_offset =0.01
 var texture_inter2_offset =0.01;
+var texture_inter3_offset =0.01;
 var texture_out_offset =0.01;
 var texture_out;
+
+
+var html_explanatory = '<div id="explanatory">This graphic shows net migration between states in a particular year. <ul><li>The size of the state cylinders indicates their size.<li>The color of the state\'s cyclinders indicate whether they\'re net growing or shrinking.  <li>The size and color of the flows indicate their relative size. <li> When looking at a state detail, green indicates net inflow from a state. Orange indicats net outflow.</ul><b>Options:</b><ul><li> Hover over a state or flow to see the relevant data. <li>Left-click and drag to pivot the visualization <li>Right-click and drag to pan the visualization<li>Hover over the sidebar to select a particular state</ul></div>';
 
 var min_x=0,min_y=0, min_z =0;
 var max_x=500, max_y=500, max_z=500;
@@ -75,6 +79,12 @@ var volume_multiplier = 1/15000;
 
 text_group = new THREE.Group();
 
+
+camera_initial_x = 180;
+camera_initial_y = 80;
+camera_initial_z = -4;
+
+
 // used for orbit controls
 var rotSpeed =0;
 var opacity_value = 1;
@@ -83,6 +93,9 @@ var zoomSpeed=4;
 var panSpeed=2;
 var angle = 1;
 var delta =  0.005;
+
+
+
 
 //
 //   end variables
@@ -121,6 +134,20 @@ function tubular(flow) {
  if (val < 1) { val = 1;}
 	return parseInt(val)
  }
+
+// dedupes a multidimensional array
+function multiDimensionalUnique(arr) {
+ var uniques = [];
+ var itemsFound = {};
+ for(var i = 0, l = arr.length; i < l; i++) {
+	 var stringified = JSON.stringify(arr[i]);
+	 if(itemsFound[stringified]) { continue; }
+	 uniques.push(arr[i]);
+	 itemsFound[stringified] = true;
+  }
+  return uniques;
+}
+
 
  function provide_color(low_color, high_color, percentile) {
  	var color1 = high_color;
@@ -162,16 +189,14 @@ function tubular(flow) {
 
  }
 
-
-// TO Do: add grey gradient for growth
-
 // begin the code--------------
 
 var matrix = new THREE.Matrix4();
 var quaternion = new THREE.Quaternion();
+reset_variables();
 init();
 //
-// import data
+// initial variables
 //
 
 function reset_variables () {
@@ -191,9 +216,11 @@ function reset_variables () {
 
 }
 function init() {
-reset_variables();
-// get the state information (population, lat, long)
-var jqxhr = $.getJSON( "capitals.json", function(data) {
+ document.getElementById("sidebar").innerHTML = html_explanatory;
+
+
+ // get the state information (population, lat, long)
+ var jqxhr = $.getJSON( "capitals.json", function(data) {
   state_locations = data;
 	var population = $.getJSON( "population-change.json", function(data) {
 	  population = data;
@@ -211,9 +238,6 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 		 if (per_change < min_per_change)  {
             min_per_change = per_change
 		 }
-
-
-
 			 // find the minimum values to allow shifting later on
       if (pop > max_pop)  {
 			  max_pop = pop;
@@ -238,10 +262,47 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 			state_data.push ([state_name ,pop, lat, long, 0,per_change, per_nation]);
 		}
 
-		var jqxhr = $.getJSON( "migration.json", function(data) {
-			 migration = data;
-			 display(add_interpages);
 
+   // this is the migration data
+		var jqxhr = $.getJSON( "migration.json", function(data) {
+			migration = data;
+
+			 // top X tubes overall
+			 var top_all = $.grep(data, function(v,i) {
+		 			return i < 26;
+		 		});
+
+      // which states to get specific information on
+       var selected_state_array = [
+			           "Arizona",
+								 "California",
+								 "Florida",
+								 "New York",
+								 "Texas",
+		             "Washington"];
+
+
+    // for each state, iterate and find the top X rows
+   for (y=0; y<  selected_state_array.length; y++){
+        var selected_state = selected_state_array[y];
+				var state_info = $.grep(data, function(v,i) {
+					return v.Origin ==  selected_state ||   v.Destination ==  selected_state;
+			  	});
+				var top_state_info = $.grep(state_info, function(v,i) {
+					 return i < 25;
+				 });
+
+				$.merge(top_all,top_state_info);
+
+			}
+
+
+   // deduplicate
+    migration_view = multiDimensionalUnique(top_all);
+
+		display(add_interpages);
+
+       // this adds the labels to the state elements
        for (m = 0; m< state_data.length; m++) {
 				   text_display(m);
 			 }
@@ -253,27 +314,23 @@ var jqxhr = $.getJSON( "capitals.json", function(data) {
 }
 
 
-
+// once the data is loaded, we display the elements
 
 function display(callback) {
-	//initial setup
 
-
+ //initial setup of the three.js controls
  container = document.getElementById("main_area" );
  renderer = new THREE.WebGLRenderer( { antialias: true } );
  renderer.setPixelRatio( window.devicePixelRatio );
  renderer.setSize( width, height );
  container.appendChild( renderer.domElement );
 
-
  camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-
- camera.position.x = 80;
- camera.position.y = 80;
- camera.position.z = -4;
+ camera.position.x = camera_initial_x;
+ camera.position.y = camera_initial_y;
+ camera.position.z = camera_initial_z;
 
  // Place camera on x axis
-
  camera.up = new THREE.Vector3(0,-1,0);
  camera.lookAt(new THREE.Vector3(0,0,0));
 
@@ -308,41 +365,50 @@ function display(callback) {
  scene.add( light2 );
 
  //
- // Sidebar functionality
+ // Mouse hover functionality
  //
  document.addEventListener( 'mousemove', function( event ) {
 	mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
 	mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
-  //console.log(mouse.x);
-	if (mouse.x < -10.91 )  {
+  // if the mouse moves over the sidebar
+	if (mouse.x < -0.91 )  {
 // sidebar pulldown
    if (first_reviewed == true )  {
      first_reviewed = false;
      // if it's the first time moused over the sidebar
-		 var html = '<div id="pulldowns"> Top <select id="percent_pulldown"><option value="10">10%</option><option value="25">25%</option><option value="50">50%</option></select> from ';
-	   html +='<select id="state_pulldown"><option value="all">All</option><option value="California">California</option><option value="Washington">Washington</option></div>';
+		 var html = '<div id="pulldowns"> Top <select id="num_pulldown"><option value="10">10</option><option value="25">25</option></select> from ';
+	   html +='<select id="state_pulldown"><option value="all">All</option><option value="California">California</option><option value="New York">New York</option><option value="Texas">Texas</option></div><option value="Washington">Washington</option>';
      document.getElementById("sidebar").innerHTML =html;
      // add change
 	   $('#state_pulldown').on('change', function() {
  	     var selected_state = this.value ;
-       // TODO: hide all the previous ones
+       num_tubes = $('#num_pulldown').val();
 			 t=0;
-       console.log(scene.children[3].children.length);
+			 // iterate over the tubes available
        for (z=0; z < scene.children[3].children.length; z++)  {
-          if  ( (scene.children[3].children[z].userData.dest_name  == selected_state) ||    (scene.children[3].children[z].userData.src_name  == selected_state) ){
-            console.log(scene.children[3].children[z].userData.dest_name ,  scene.children[3].children[z].userData.src_name);
+				  scene.children[3].children[z].material.visible = false;
+          if  ( selected_state == "all") {
 
 						if (t< num_tubes) {
-            scene.children[3].children[z].material.visible = true;
-						t+=1;} else {scene.children[3].children[z].material.visible = false;}
+              scene.children[3].children[z].material.visible = true;
+					   	t+=1;
+				  	}
 
-			    } else {
-  				  scene.children[3].children[z].material.visible = false;
-	   		 }
-       }
-     });
-   }
+					} else  {
+            if  ( (scene.children[3].children[z].userData.dest_name  == selected_state) ||    (scene.children[3].children[z].userData.src_name  == selected_state) ){
+						  if (t< num_tubes) {
+                console.log(scene.children[3].children[z].userData.src_name );
+								console.log(scene.children[3].children[z].userData.dest_name );
+
+                scene.children[3].children[z].material.visible = true;
+					     	t+=1;
+				    	}
+			      }
+          }
+        }
+	    });
+    }
   } else {
 		// not on the sidebar
    first_reviewed = true;
@@ -351,10 +417,10 @@ function display(callback) {
    intersects_flow = raycaster.intersectObjects( scene.children[3].children );
    if  (intersects_flow.length > 0 ) {
      for (t=0;t< intersects_flow.length; t++ ) {
-       if (intersects_flow[t].object.type =="Mesh")  {
+       if ((intersects_flow[t].object.type =="Mesh")  &&   (intersects_flow[t].object.material.visible  == true)	  )  {
 			   selected_flow = intersects_flow[t].object.userData.src_name + intersects_flow[t].object.userData.dest_name;
 			   // if already viewed
-         if (flow_viewed != selected_flow) {
+         if (flow_viewed != selected_flow )   {
 			     flow_viewed = selected_flow;
            from_State = intersects_flow[t].object.userData.src_name;
 				   to_State = intersects_flow[t].object.userData.dest_name;
@@ -363,11 +429,15 @@ function display(callback) {
            // total = intersects_flow[t].object.userData.destination;
 			     var html =  "<div id='flow_text'>" + from_State  + " -> " + to_State  + ": " + commafy(total2)  +"</div>" ;
 		    	 document.getElementById("sidebar").innerHTML = html;
+					 console.log(intersects_flow[t]);
          }
        }
      }
    }  else {
 		 flow_viewed ="";
+      document.getElementById("sidebar").innerHTML =  html_explanatory;
+
+
    }
    if  (intersects_state.length > 0 ) {
  	   for (t=0;t< intersects_state.length; t++ ) {
@@ -475,39 +545,42 @@ function display(callback) {
 
 
 	 interpage_group = new THREE.Group();
-  	for (z =0; z<migration.length ; z++) {
-	  	if (migration[z].Total < min_flow)   {
-				min_flow =migration[z].Total;
+  	for (z =0; z<migration_view.length ; z++) {
+	  	if (migration_view[z].Total < min_flow)   {
+				min_flow =migration_view[z].Total;
 		  }
-		  if (migration[z].Total > max_flow)   {
-				 max_flow =migration[z].Total;
+		  if (migration_view[z].Total > max_flow)   {
+				 max_flow =migration_view[z].Total;
 		  }
 	  }
 
  tube_width_multiplier = (max_width - min_width) / (max_flow - min_flow);
 
-  // ToDo sort migration here
  	var textureLoader = new THREE.TextureLoader();
-
 
 	texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
 	texture_inter.anisotropy = anisotropy_inter;
 
-
-	texture_inter2 = textureLoader.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
+	var textureLoader2 = new THREE.TextureLoader();
+	texture_inter2 = textureLoader2.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
 	texture_inter2.anisotropy = anisotropy_inter;
+	var textureLoader3 = new THREE.TextureLoader();
+	texture_inter3 = textureLoader3.load( 'black_arrow.png', function ( texture ) { 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;  } );
+	texture_inter3.anisotropy = anisotropy_inter;
 
   // Create each tube
-	for (q=0; q < num_tubes; q++) {  //migration.length
+	// migration_view is the data set to create tubes
+	// migration is used for the sidebar
+	for (q=0; q < migration_view.length; q++) {  //migration.length
 
 		// tube materials
 
-		var tube_radius = tubular (migration[q].Total);
+		var tube_radius = tubular (migration_view[q].Total);
 		var src_page = $.grep(state_data, function(v) {
-				 return v[0] ==  migration[q].Origin ;
+				 return v[0] ==  migration_view[q].Origin ;
 		});
 		var dest_page = $.grep(state_data, function(v) {
-				 return v[0] ==  migration[q].Destination ;
+				 return v[0] ==  migration_view[q].Destination ;
 	  });
 
    //starting point of the tube
@@ -528,43 +601,59 @@ function display(callback) {
 	 tubular_segments =64;
 
 
-percentage = migration[q].Total/max_flow;
+percentage = migration_view[q].Total/max_flow;
 //console.log(percentage);
 
 
 if (q< num_tubes) {
   var shown = true;
+	console.log(src_page[0][0], dest_page[0][0], distance);
 } else {
   var shown = false;
 }
 
 
-	material_inter = new THREE.MeshLambertMaterial( {
+	material_inter1 = new THREE.MeshLambertMaterial( {
   map: texture_inter,
-	 color: new THREE.Color( '#'+ provide_color( 'A2A2A2','2574FF',percentage)),
+	 color: new THREE.Color( '#'+ provide_color( 'A2A2A2','3896EE',percentage)),
 	 wireframe: false,
 	 visible:shown ,
  	 emissiveIntensity:0.9 } );
-material_inter.map.repeat.set(24,5 );
+material_inter1.map.repeat.set(5,5 );
 
 material_inter2 = new THREE.MeshLambertMaterial( {
 map: texture_inter2,
- color: new THREE.Color( '#'+ provide_color( 'A2A2A2','B82626',percentage)),
+ color: new THREE.Color( '#'+ provide_color( 'A2A2A2','3896EE',percentage)),
  wireframe: false,
  visible:shown ,
  emissiveIntensity:0.9 } );
- material_inter2.map.repeat.set(5,5 );
+ material_inter2.map.repeat.set(15,5 );
 
+
+ material_inter3 = new THREE.MeshLambertMaterial( {
+ map: texture_inter3,
+  color: new THREE.Color( '#'+ provide_color( 'A2A2A2','3896EE',percentage)),
+  wireframe: false,
+  visible:shown ,
+  emissiveIntensity:0.9 } );
+  material_inter3.map.repeat.set(65,5 );
 
 
 // if long or short
-	 if (distance > 30)  {   //long
-      material = material_inter;
+
+if (distance > 80)  {   //long
+	 material = material_inter3;
+	 	//	console.log("material_3");
+ } else if (distance > 60)  {   //long
+      material = material_inter2;
+			//		console.log("material_2");
 	 } else {   //short
 		 // if thick or thin
-		  material = material_inter2;
+		  material = material_inter1;
+
+		//	console.log("material_1");
 	}
-console.log(distance);
+
 
 radial_segments = 11;
    //length_repeat,width_repeat);  //For repeat wrapping, your texture's dimensions must be a power-of-two (POT)
@@ -572,10 +661,10 @@ radial_segments = 11;
 		// create the tube using this special function (that gives it a curve)
 	 var cylinder_element =  custom_cylinderMesh(pointX,
 		         pointY,
-						 material_inter,
-						 migration[q].Origin,
-						 migration[q].Destination,
-						 migration[q].Total ,
+						 material,
+						 migration_view[q].Origin,
+						 migration_view[q].Destination,
+						 migration_view[q].Total ,
 						 tubular_segments,
 						 radial_segments,
 						 tube_radius  );
@@ -596,7 +685,7 @@ function add_interpages() {
 // this creates the curving tubes
 function custom_cylinderMesh( point2,
 														point1,
-														material,
+														material_passed,
 														src,
 														destination,
 														total,
@@ -636,7 +725,7 @@ function custom_cylinderMesh( point2,
 	//path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
 	var geometry = new THREE.TubeGeometry(pathBase, tubular_segments, tube_radius, radial_segments);
 	//material.color =
-	var mesh = new THREE.Mesh( geometry, material );
+	var mesh = new THREE.Mesh( geometry, material_passed );
 	//var edges = new THREE.EdgesGeometry( geometry );
   //var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
   //var line_instance = line.clone();
@@ -685,7 +774,8 @@ function render() {
   raycaster.setFromCamera( mouse, camera );
 	controls.update();
   texture_inter.offset.x += texture_inter_offset;
-	texture_inter2_offset.x += texture_inter2_offset;
+	texture_inter2.offset.x += texture_inter2_offset;
+	texture_inter3.offset.x += texture_inter3_offset;
   // X_text.lookAt( camera.position );
 	renderer.render( scene, camera );
 
@@ -706,11 +796,6 @@ function animate() {
 
 
 }
-
-
-
-
-
 
 </script>
 </body>

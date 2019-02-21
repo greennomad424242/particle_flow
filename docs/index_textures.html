@@ -1,0 +1,186 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Paul Lewis" />
+  <meta name="viewport" content="width=device-width">
+  <title></title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script src="three.min.js"></script>
+  <script>
+	const textureLoader = new THREE.TextureLoader();
+	const textureLoader2 = new THREE.TextureLoader();
+    // Set the scene size.
+    const WIDTH = window.innerWidth;
+    const HEIGHT = window.innerHeight;
+
+    // Set some camera attributes.
+    const VIEW_ANGLE = 45;
+    const ASPECT = WIDTH / HEIGHT;
+    const NEAR = 0.1;
+    const FAR = 10000;
+
+    // Get the DOM element to attach to
+    const container =
+        document.querySelector('#container');
+
+    // Create a WebGL renderer, camera
+    // and a scene
+    const renderer = new THREE.WebGLRenderer();
+    const camera =
+        new THREE.PerspectiveCamera(
+            VIEW_ANGLE,
+            ASPECT,
+            NEAR,
+            FAR
+        );
+
+    const scene = new THREE.Scene();
+
+    // Add the camera to the scene.
+    scene.add(camera);
+
+    // Start the renderer.
+    renderer.setSize(WIDTH, HEIGHT);
+
+    // Attach the renderer-supplied
+    // DOM element.
+    container.appendChild(renderer.domElement);
+
+    // create a point light
+    const pointLight =
+      new THREE.PointLight(0xFFFFFF);
+
+    // set its position
+    pointLight.position.x = 10;
+    pointLight.position.y = 50;
+    pointLight.position.z = 130;
+
+    // add to the scene
+    scene.add(pointLight);
+
+    // create the sphere's material
+
+		function provide_color(low_color, high_color, percentile) {
+	  	var color1 = high_color;
+	  	var color2 = low_color;
+	   var ratio = percentile;
+
+	  	var hex = function(x) {
+	  	    x = x.toString(16);
+	  	    return (x.length == 1) ? '0' + x : x;
+	  	};
+
+	  	var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
+	  	var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
+	  	var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+	   var middle = hex(r) + hex(g) + hex(b);
+	  	return middle
+	  }
+
+
+	function CustomSinCurve( scale ) {
+		THREE.Curve.call( this );
+		this.scale = ( scale === undefined ) ? 1 : scale;
+	}
+
+	CustomSinCurve.prototype = Object.create( THREE.Curve.prototype );
+	CustomSinCurve.prototype.constructor = CustomSinCurve;
+
+	CustomSinCurve.prototype.getPoint = function ( t ) {
+		var tx = t * 2 ;
+		var ty = t ;
+		var tz = 0;
+
+		return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+
+	};
+
+	var path = new CustomSinCurve( 40 );
+var path2 = new CustomSinCurve( 20);
+
+	// tubularSegments , radius , radialSegments
+	radius = 1;
+	tubularSegments = 20;
+	radialSegments = 8;
+
+	var geometry = new THREE.TubeGeometry( path, tubularSegments, 	radius, 	radialSegments, false);
+
+	radius = 5;
+
+	var geometry2 = new THREE.TubeGeometry( path2, tubularSegments, 	radius, 	radialSegments, false);
+
+	texture_inter = textureLoader.load( 'black_arrow.png', function ( texture ) {
+ 	 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+ 	 } );
+
+	 texture2 = textureLoader2.load( 'black_arrow.png', function ( texture ) {
+	  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+	  } );
+
+
+ 	 texture_inter.anisotropy = 10;
+ 	 texture2.anisotropy = 10;
+  percentage = 0.5;
+	shown = true;
+
+	material = new THREE.MeshLambertMaterial( {
+  map: texture_inter,
+	 //color: new THREE.Color( '#'+ provide_color( 'A2A2A2','2574FF',percentage)),
+	 wireframe: false,
+	 visible:shown ,
+ 	 emissiveIntensity:0.9 } );
+
+
+
+
+
+	 material2 = new THREE.MeshLambertMaterial( {
+   map: texture2,
+ 	 //color: new THREE.Color( '#'+ provide_color( 'A2A2A2','2574FF',percentage)),
+ 	 wireframe: false,
+ 	 visible:shown ,
+  	 emissiveIntensity:0.9 } );
+
+  material.map.repeat.set(34,3 );
+
+	material2.map.repeat.set(8,8 );
+
+
+
+	var mesh = new THREE.Mesh( geometry, material );
+  var mesh2 = new THREE.Mesh( geometry2, material2 );
+
+    // Move the Sphere back in Z so we
+    // can see it.
+  mesh.position.z = -100;
+  mesh2.position.z = -100;
+	mesh2.position.y = -10 + mesh.position.y ;
+
+  scene.add( mesh );
+	scene.add( mesh2 );
+
+
+    function update () {
+      // Draw!
+      renderer.render(scene, camera);
+      mesh.rotation.x +=0.01;
+		  mesh2.rotation.x +=0.01;
+      // Schedule the next frame.
+      requestAnimationFrame(update);
+    }
+
+    // Schedule the first frame.
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>

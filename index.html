@@ -607,6 +607,7 @@ percentage = migration_view[q].Total/max_flow;
 
 if (q< num_tubes) {
   var shown = true;
+	console.log(src_page[0][0], dest_page[0][0], distance);
 } else {
   var shown = false;
 }
@@ -639,18 +640,18 @@ map: texture_inter2,
 
 
 // if long or short
-console.log(src_page[0][0], dest_page[0][0], distance);
+
 if (distance > 80)  {   //long
 	 material = material_inter3;
-	 		console.log("material_3");
+	 	//	console.log("material_3");
  } else if (distance > 60)  {   //long
       material = material_inter2;
-					console.log("material_2");
+			//		console.log("material_2");
 	 } else {   //short
 		 // if thick or thin
 		  material = material_inter1;
 
-			console.log("material_1");
+		//	console.log("material_1");
 	}
 
 
